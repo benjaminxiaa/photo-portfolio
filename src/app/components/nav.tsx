@@ -18,7 +18,9 @@ export default function Nav() {
           </Link>
         </li>
         <li className={styles.dropdownContainer}>
-          Photo
+          <span className={isActive("/photo") ? styles.activeLink : ""}>
+            Photo
+          </span>
           <ul className={styles.dropdown}>
             <li>
               <Link href="/photo/wildlife">Wildlife</Link>

@@ -23,7 +23,7 @@
     width: 1px;
     height: 8rem;
     background-color: #64748b;
-    margin-top: 1.5rem;
+    /* margin-top: 1.5rem; */
 }
 
 .socialLinks a {
@@ -32,6 +32,6 @@
 }
 
 .socialLinks a:hover {
-    color: #64ffda;
-    transform: translateY(-2px);
+    color: #36c;
+    /* transform: translateY(-2px); */
 }

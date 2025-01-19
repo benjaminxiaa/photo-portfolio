@@ -1,6 +1,5 @@
 .container {
     min-height: 100vh;
-    /* background-color: #0d1117; */
     color: #94a3b8;
     position: relative;
     font-family: var(--font-geist-sans);
@@ -10,37 +9,26 @@
     max-width: 64rem;
     position: absolute;
     top: 10%;
-    /* transform: translateY(-15%); */
-    padding: 0rem 8rem 0;
-    font-family: var(--font-geist-sans);
+    padding: 0 8rem 2rem 8rem; /* Default padding for larger screens */
     min-width: 100%;
-    /* outline: 1px red solid; */
 }
 
 .content {
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    /* outline: 1px orange solid; */
-}
-
-.greeting {
-    color: #3366cc;
-    /* outline: 1px yellow solid; */
 }
 
 .title {
     font-size: 3.5rem;
     font-weight: bold;
     color: #e2e8f0;
-    /* outline: 1px green solid; */
 }
 
 .description {
     max-width: 42rem;
     line-height: 1.75;
     color: #94a3b8;
-    /* outline: 1px blue solid; */
 }
 
 .link {
@@ -50,4 +38,29 @@
 
 .link:hover {
     text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .main {
+        padding: 0 1rem; /* Reduce padding for mobile screens */
+        top: 25%; /* Adjust positioning for smaller screens */
+        transform: translateY(0);
+    }
+
+    .content {
+        gap: 0.75rem; /* Reduce spacing for mobile */
+    }
+
+    .title {
+        font-size: 2rem; /* Smaller title size for mobile */
+    }
+
+    .description {
+        font-size: 0.875rem; /* Adjust description font size for readability */
+    }
+
+    .masonry-container {
+        column-gap: 15px; /* Reduce column gap for smaller screens */
+    }
 }

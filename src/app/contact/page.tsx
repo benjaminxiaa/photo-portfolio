@@ -19,9 +19,9 @@ export default function Home() {
             If you have any questions or would like to get in touch, please feel
             free to contact me.
           </p>
-          <button className={styles.button}>
-            <a href="mailto:benjamin@xiaa.org">Email Me</a>
-          </button>
+          <a href="mailto:benjamin@xiaa.org">
+            <button className={styles.button}>Email Me</button>
+          </a>
         </div>
       </main>
 

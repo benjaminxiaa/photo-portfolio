@@ -1,12 +1,18 @@
 :root {
   --background: #18181a;
   --foreground: #171717;
+  --sb-track-color: #232e33;
+  --sb-thumb-color: #3366cc;
+  --sb-size: 5px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #18181a;
     --foreground: #ededed;
+    --sb-track-color: #232e33;
+    --sb-thumb-color: #3366cc;
+    --sb-size: 5px;
   }
 }
 
@@ -22,6 +28,22 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+body::-webkit-scrollbar-track {
+    background: var(--sb-track-color);
+    border-radius: 3px;
+}
+
+body::-webkit-scrollbar-thumb {
+    background: var(--sb-thumb-color);
+    border-radius: 3px;
+}
+
+@supports not selector(::-webkit-scrollbar) {
+    body {
+        scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
+    }
 }
 
 * {

@@ -56,8 +56,8 @@ async function generateImageMetadata(directoryPath, portfolioPath) {
 }
 
 // Example usage:
-const directoryPath = process.argv[2] || './Korea';
-const portfolioPath = process.argv[3] || '/portfolio/Korea';
+const directoryPath = process.argv[2] || './wildlife';
+const portfolioPath = process.argv[3] || '/portfolio/wildlife';
 
 console.log(`Starting image processing...`);
 console.log(`Directory path: ${directoryPath}`);

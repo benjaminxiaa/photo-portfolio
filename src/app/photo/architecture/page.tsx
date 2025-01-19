@@ -3,35 +3,44 @@ import Nav from "../../components/nav";
 
 import { MasonryPhotoAlbum } from "react-photo-album";
 import "react-photo-album/masonry.css";
-// import "react-photo-album/masonry.css";
 
 export default function Home() {
   const images = [
     {
-      src: "/static/portfolio/Korea/DSC09702.jpg",
-      width: 4672,
-      height: 7008,
+      src: "/static/portfolio/architecture/DSC05860.jpg",
+      width: 6000,
+      height: 3376
     },
     {
-      src: "/static/portfolio/Korea/DSC09471.jpg",
+      src: "/static/portfolio/architecture/DSC09383.jpg",
+      width: 4672,
+      height: 7008
+    },
+    {
+      src: "/static/portfolio/architecture/DSC09436.jpg",
+      width: 4672,
+      height: 7008
+    },
+    {
+      src: "/static/portfolio/architecture/DSC09471.jpg",
       width: 7008,
-      height: 4672,
+      height: 4672
     },
     {
-      src: "/static/portfolio/Korea/DSC09383.jpg",
-      width: 4672,
-      height: 7008,
-    },
-    {
-      src: "/static/portfolio/Korea/DSC09473.jpg",
+      src: "/static/portfolio/architecture/DSC09473.jpg",
       width: 7008,
-      height: 4672,
+      height: 4672
     },
     {
-      src: "/static/portfolio/Korea/DSC09436.jpg",
+      src: "/static/portfolio/architecture/DSC09702.jpg",
       width: 4672,
-      height: 7008,
+      height: 7008
     },
+    {
+      src: "/static/portfolio/architecture/DotonboriCanal-BenjaminXia.jpg",
+      width: 1365,
+      height: 2048
+    }
   ];
 
   return (
