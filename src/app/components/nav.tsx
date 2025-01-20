@@ -29,7 +29,10 @@ export default function Nav() {
               <Link href="/photo/architecture">Architecture</Link>
             </li>
             <li>
-              <Link href="/photo/landscape">Landscape</Link>
+              <Link href="/photo/nature">Nature</Link>
+            </li>
+            <li>
+              <Link href="/photo/travel">Travel</Link>
             </li>
           </ul>
         </li>

@@ -7,11 +7,6 @@ import "react-photo-album/masonry.css";
 export default function Home() {
   const images = [
     {
-      src: "/static/portfolio/architecture/DSC05860.jpg",
-      width: 6000,
-      height: 3376
-    },
-    {
       src: "/static/portfolio/architecture/DSC09383.jpg",
       width: 4672,
       height: 7008
@@ -35,11 +30,6 @@ export default function Home() {
       src: "/static/portfolio/architecture/DSC09702.jpg",
       width: 4672,
       height: 7008
-    },
-    {
-      src: "/static/portfolio/architecture/DotonboriCanal-BenjaminXia.jpg",
-      width: 1365,
-      height: 2048
     }
   ];
 
@@ -52,7 +42,7 @@ export default function Home() {
       <main className={styles.main}>
         <div className={styles.content}>
           <h1 className={styles.title}>Architecture</h1>
-          <MasonryPhotoAlbum photos={images} columns={3} spacing={30} />
+          <MasonryPhotoAlbum photos={images} columns={3} spacing={50} />
         </div>
       </main>
     </div>
