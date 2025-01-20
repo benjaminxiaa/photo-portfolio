@@ -3,6 +3,7 @@ import Nav from "../../components/nav";
 
 import { MasonryPhotoAlbum } from "react-photo-album";
 import "react-photo-album/masonry.css";
+import Copyright from "@/app/components/copyright";
 
 export default function Home() {
   const images = [
@@ -45,6 +46,8 @@ export default function Home() {
           <MasonryPhotoAlbum photos={images} columns={3} spacing={50} />
         </div>
       </main>
+      
+      <Copyright />
     </div>
   );
 }

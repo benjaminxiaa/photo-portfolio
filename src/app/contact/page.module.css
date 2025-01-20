@@ -43,17 +43,6 @@
     text-decoration: underline;
 }
 
-.watermark {
-    position: fixed;
-    right: 1rem;
-    bottom: 1rem;
-    writing-mode: vertical-rl;
-    text-orientation: mixed;
-    color: #1e293b;
-    font-size: 0.875rem;
-    letter-spacing: 0.1em;
-}
-
 .button {
     display: inline-block;
     padding: 0.75rem 1.5rem;

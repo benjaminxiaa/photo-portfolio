@@ -1,6 +1,7 @@
 import styles from "./page.module.css";
 import Nav from "../components/nav";
 import Social from "../components/social";
+import Copyright from "../components/copyright";
 
 export default function Home() {
   return (
@@ -26,7 +27,7 @@ export default function Home() {
       </main>
 
       {/* Name Watermark */}
-      <div className={styles.watermark}>benjamin@xiaa.org</div>
+      <Copyright />
     </div>
   );
 }

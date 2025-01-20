@@ -9,7 +9,7 @@
     max-width: 64rem;
     position: absolute;
     top: 10%;
-    padding: 0 2rem 2rem 2rem; /* Default padding for larger screens */
+    padding: 0 2rem 4rem 2rem; /* Default padding for larger screens */
     min-width: 100%;
 }
 
