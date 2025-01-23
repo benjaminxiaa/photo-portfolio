@@ -18,7 +18,7 @@ export default function Home() {
           <h1 className={styles.title}>Contact Me</h1>
           <p className={styles.description}>
             If you have any questions or would like to get in touch, please feel
-            free to contact me.
+            free to contact me. [TEST MESSAGE FOR STAGING]
           </p>
           <a href="mailto:benjamin@xiaa.org">
             <button className={styles.button}>Email Me</button>
