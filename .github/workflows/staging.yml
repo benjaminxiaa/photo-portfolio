@@ -1,0 +1,27 @@
+name: Deploy to Staging
+
+on:
+  pull_request:
+    branches:
+      - staging # Trigger on pull requests to the staging branch
+
+jobs:
+  deploy:
+    if: github.event.pull_request.merged == true && contains(github.event.pull_request.title, '[staging deploy]')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install dependencies (if needed)
+        run: |
+          echo "Installing dependencies..."
+          # Example: npm install
+          # Modify based on your tech stack
+
+      - name: Run deployment script for staging
+        run: |
+          echo "Deploying to staging..."
+          # Example deployment logic:
+          # ssh user@staging-server "cd /path/to/app && git pull origin staging && npm install && pm2 restart app"

@@ -9,7 +9,7 @@
     max-width: 64rem;
     position: absolute;
     top: 10%;
-    padding: 0 2rem 4rem 2rem; /* Default padding for larger screens */
+    padding: 0 2rem 4rem 2rem;
     min-width: 100%;
 }
 
@@ -40,27 +40,26 @@
     text-decoration: underline;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
     .main {
-        padding: 0 1rem; /* Reduce padding for mobile screens */
-        top: 25%; /* Adjust positioning for smaller screens */
+        padding: 0 1rem;
+        top: 25%;
         transform: translateY(0);
     }
 
     .content {
-        gap: 0.75rem; /* Reduce spacing for mobile */
+        gap: 0.75rem;
     }
 
     .title {
-        font-size: 2rem; /* Smaller title size for mobile */
+        font-size: 2rem;
     }
 
     .description {
-        font-size: 0.875rem; /* Adjust description font size for readability */
+        font-size: 0.875rem;
     }
 
     .masonry-container {
-        column-gap: 15px; /* Reduce column gap for smaller screens */
+        column-gap: 15px;
     }
 }
