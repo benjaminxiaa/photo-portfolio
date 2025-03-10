@@ -7,12 +7,12 @@ import Copyright from "@/app/components/copyright";
 export default function Home() {
   const images = [
     {
-      src: "/static/portfolio/architecture/DSC05860.jpg",
+      src: "/static/portfolio/travel/DSC05860.jpg",
       width: 6000,
       height: 3376,
     },
     {
-      src: "/static/portfolio/architecture/DotonboriCanal-BenjaminXia.jpg",
+      src: "/static/portfolio/travel/DotonboriCanal-BenjaminXia.jpg",
       width: 1365,
       height: 2048,
     }];
