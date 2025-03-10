@@ -4,6 +4,8 @@ import { readFile, writeFile } from "fs/promises";
 import path from "path";
 import fs from "fs";
 
+export const runtime = 'edge';
+
 // Type definitions
 interface DeleteRequest {
   src: string;
@@ -16,9 +18,6 @@ interface ApiResponse {
 }
 
 type Category = "nature" | "wildlife" | "architecture" | "travel";
-
-// Explicitly set Node.js runtime
-export const runtime = "nodejs";
 
 export async function DELETE(
   request: NextRequest

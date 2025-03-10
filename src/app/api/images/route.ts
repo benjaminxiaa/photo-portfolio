@@ -4,6 +4,8 @@ import { readFile } from "fs/promises";
 import path from "path";
 import fs from "fs";
 
+export const runtime = "edge";
+
 // Type definitions
 interface GalleryImage {
   src: string;
@@ -21,9 +23,6 @@ interface ImagesResponse extends ApiResponse {
 }
 
 type Category = "nature" | "wildlife" | "architecture" | "travel";
-
-// Explicitly set Node.js runtime
-export const runtime = "nodejs";
 
 export async function GET(
   request: NextRequest

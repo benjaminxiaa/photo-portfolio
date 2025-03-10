@@ -5,6 +5,8 @@ import path from "path";
 import fs from "fs";
 import sharp from "sharp";
 
+export const runtime = "nodejs";
+
 // Type definitions
 interface UploadResponse {
   success: boolean;
@@ -20,8 +22,7 @@ interface GalleryImage {
 
 type Category = "nature" | "wildlife" | "architecture" | "travel";
 
-// Explicitly set Node.js runtime
-export const runtime = "nodejs";
+// Explicitly set Node.js runtim
 
 export async function POST(
   request: NextRequest

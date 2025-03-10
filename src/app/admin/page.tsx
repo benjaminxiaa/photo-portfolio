@@ -1,7 +1,7 @@
 // src/app/admin/page.tsx
 "use client";
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 import { useState, useRef, FormEvent } from "react";
 import { useRouter } from "next/navigation";
