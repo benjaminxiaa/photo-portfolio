@@ -4,7 +4,7 @@ import { readFile } from "fs/promises";
 import path from "path";
 import fs from "fs";
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 // Type definitions
 interface GalleryImage {

@@ -5,7 +5,7 @@ import path from "path";
 import fs from "fs";
 import sharp from "sharp";
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 // Type definitions
 interface UploadResponse {
