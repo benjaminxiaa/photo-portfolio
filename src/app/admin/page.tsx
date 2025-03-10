@@ -3,9 +3,10 @@
 
 export const runtime = "edge";
 
-import { useState, useRef, useEffect, FormEvent } from "react";
+import { useState, useRef, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./admin.module.css";
+import Image from "next/image";
 
 // Define type interfaces
 interface GalleryImage {
@@ -266,7 +267,7 @@ export default function AdminPortal() {
   const edgeRuntimeNotice = authenticated ? (
     <div className={styles.edgeNotice}>
       <p>
-        ⚠️ Operating in Edge Runtime Demo Mode: Changes won't be saved
+        ⚠️ Operating in Edge Runtime Demo Mode: Changes won&apos;t be saved
         permanently
       </p>
     </div>
@@ -427,7 +428,7 @@ export default function AdminPortal() {
                       {images.map((image, index) => (
                         <div key={index} className={styles.imageCard}>
                           <div className={styles.imageWrapper}>
-                            <img
+                            <Image
                               src={image.src}
                               alt={`Gallery image ${index + 1}`}
                               className={styles.thumbnailImage}
