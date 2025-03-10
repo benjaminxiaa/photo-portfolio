@@ -9,20 +9,20 @@ export default function Home() {
     {
       src: "/static/portfolio/wildlife/BreakingTheSurface-BenjaminXia.jpg",
       width: 2203,
-      height: 1469
+      height: 1469,
     },
     {
       src: "/static/portfolio/wildlife/CatchOfTheDay-BenjaminXia.jpg",
       width: 1872,
-      height: 1248
+      height: 1248,
     },
     {
       src: "/static/portfolio/wildlife/CradleInTheGreen-BenjaminXia.jpg",
       width: 2252,
-      height: 4000
-    }
+      height: 4000,
+    },
   ];
-  
+
   return (
     <div className={styles.container}>
       {/* Navigation */}
@@ -35,7 +35,7 @@ export default function Home() {
           <MasonryPhotoAlbum photos={images} columns={3} spacing={50} />
         </div>
       </main>
-      
+
       <Copyright />
     </div>
   );

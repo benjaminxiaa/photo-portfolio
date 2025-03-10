@@ -20,12 +20,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <>
+    <html>
       {/* Google Analytics Scripts */}
-      <Script
-        src="https://www.googletagmanager.com/gtag/js?id=G-39PS76JP6M"
-        strategy="afterInteractive"
-      />
+      <Script src="https://www.googletagmanager.com/gtag/js?id=G-39PS76JP6M" strategy="afterInteractive" />
       <Script
         id="google-analytics"
         strategy="afterInteractive"
@@ -40,9 +37,7 @@ export default function RootLayout({
           `,
         }}
       />
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        {children}
-      </body>
-    </>
+      <body className={`${geistSans.variable} ${geistMono.variable}`}>{children}</body>
+    </html>
   );
 }
