@@ -9,15 +9,14 @@ export default function Home() {
     {
       src: "/static/portfolio/architecture/DSC05860.jpg",
       width: 6000,
-      height: 3376
+      height: 3376,
     },
     {
       src: "/static/portfolio/architecture/DotonboriCanal-BenjaminXia.jpg",
       width: 1365,
-      height: 2048
-    }
-  ];
-  
+      height: 2048,
+    }];
+
   return (
     <div className={styles.container}>
       {/* Navigation */}
@@ -30,7 +29,7 @@ export default function Home() {
           <MasonryPhotoAlbum photos={images} columns={3} spacing={50} />
         </div>
       </main>
-      
+
       <Copyright />
     </div>
   );

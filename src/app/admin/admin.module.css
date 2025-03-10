@@ -1,0 +1,355 @@
+/* src/app/admin/admin.module.css */
+:root {
+  --accent-color: #8a84e2; /* Light purple-blue accent color */
+  --accent-hover: #9d97f3; /* Slightly lighter for hover states */
+}
+
+.container {
+  min-height: 100vh;
+  background-color: #000000;
+  color: #cccccc;
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont,
+    Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans,
+    Helvetica Neue, sans-serif;
+  padding: 2rem;
+}
+
+.main {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  background-color: #121212;
+  padding: 2rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #ffffff;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.description {
+  line-height: 1.75;
+  color: #cccccc;
+  margin-bottom: 1.5rem;
+}
+
+.authForm,
+.uploadForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 30rem;
+  margin: 0 auto;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  font-size: 0.875rem;
+  color: #ffffff;
+}
+
+.labelHeading {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+}
+
+.input,
+.select,
+.fileInput {
+  padding: 0.75rem;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  border: 1px solid #333333;
+  border-radius: 0.25rem;
+  font-size: 1rem;
+  width: 100%;
+}
+
+.input:focus,
+.select:focus {
+  outline: none;
+  border-color: var(--accent-color);
+}
+
+.button {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--accent-color);
+  color: #ffffff;
+  border: none;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  text-align: center;
+}
+
+.button:hover:not(:disabled) {
+  background-color: var(--accent-hover);
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #333333;
+  padding-bottom: 1rem;
+}
+
+.tabButton {
+  padding: 0.75rem 1.5rem;
+  background-color: #1a1a1a;
+  color: #cccccc;
+  border: none;
+  border-radius: 0.25rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.activeTab {
+  background-color: var(--accent-color);
+  color: #ffffff;
+}
+
+.uploadPanel,
+.managePanel {
+  background-color: #1a1a1a;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.categorySelector {
+  margin-bottom: 1.5rem;
+}
+
+.categoryButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.categoryButton {
+  padding: 0.5rem 1rem;
+  background-color: #121212;
+  color: #cccccc;
+  border: 1px solid #333333;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.activeCategoryButton {
+  background-color: var(--accent-color);
+  color: #ffffff;
+  border-color: var(--accent-color);
+}
+
+.categoryButton:hover:not(:disabled) {
+  border-color: var(--accent-color);
+  color: #ffffff;
+}
+
+.categoryButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.imageGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.imageCard {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #333333;
+  border-radius: 0.25rem;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+  background-color: #121212;
+}
+
+.imageCard:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent-color);
+}
+
+.imageWrapper {
+  position: relative;
+  height: 150px;
+  overflow: hidden;
+}
+
+.thumbnailImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.2s ease;
+}
+
+.imageWrapper:hover .thumbnailImage {
+  opacity: 0.8;
+}
+
+.deleteButton {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid #ffffff;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.imageWrapper:hover .deleteButton {
+  opacity: 1;
+}
+
+.deleteButton:hover {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.deleteButton:disabled {
+  background-color: rgba(156, 163, 175, 0.5);
+  cursor: not-allowed;
+}
+
+.imagePath {
+  padding: 0.5rem;
+  font-size: 0.75rem;
+  color: #aaaaaa;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-top: 1px solid #333333;
+}
+
+.message {
+  padding: 0.75rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.success {
+  background-color: rgba(138, 132, 226, 0.2);
+  color: #ffffff;
+  border: 1px solid var(--accent-color);
+}
+
+.error {
+  background-color: rgba(204, 51, 51, 0.2);
+  color: #ffffff;
+  border: 1px solid #cc3333;
+}
+
+.info {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: 1px solid #666666;
+}
+
+.loadingWrapper,
+.emptyWrapper {
+  padding: 2rem;
+  text-align: center;
+  background-color: #1a1a1a;
+  border-radius: 0.5rem;
+  margin: 2rem 0;
+}
+
+.loadingMessage {
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.loadingMessage:before {
+  content: "";
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  border-top-color: var(--accent-color);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.emptyMessage {
+  color: #aaaaaa;
+}
+
+.copyright {
+  text-align: center;
+  font-size: 0.75rem;
+  color: #666666;
+  margin-top: 2rem;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .content {
+    padding: 1.5rem;
+  }
+
+  .title {
+    font-size: 1.75rem;
+  }
+
+  .categoryButtons {
+    flex-direction: column;
+  }
+
+  .imageGrid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+}
