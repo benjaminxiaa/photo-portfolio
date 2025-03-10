@@ -9,11 +9,6 @@ const GITHUB_OWNER = process.env.GITHUB_OWNER || "benjaminxiaa";
 const GITHUB_REPO = process.env.GITHUB_REPO || "photo-portfolio";
 const GITHUB_BRANCH = process.env.GITHUB_BRANCH || "main";
 
-// Helper for error responses
-function errorResponse(message: string, status = 400) {
-  return NextResponse.json({ success: false, message }, { status });
-}
-
 // GitHub API response types
 interface GitHubFileResponse {
   name: string;
@@ -29,10 +24,19 @@ interface GitHubFileResponse {
   encoding?: string;
 }
 
-// Validate category
 function isValidCategory(category: string): boolean {
-  const validCategories = ["nature", "wildlife", "architecture", "travel"];
+  const validCategories = ['nature', 'wildlife', 'architecture', 'travel'];
   return validCategories.includes(category);
+}
+
+// Helper for error responses with more detailed logging
+function errorResponse(message: string, details?: any, status = 400) {
+  console.error(`Error Response: ${message}`, details);
+  return NextResponse.json({ 
+    success: false, 
+    message,
+    details: details ? JSON.stringify(details) : undefined 
+  }, { status });
 }
 
 // GET method to fetch images
@@ -123,90 +127,134 @@ export async function GET(request: NextRequest) {
 // POST method to upload image
 export async function POST(request: NextRequest) {
   try {
-    const formData = await request.formData();
+    // Log entire request for debugging
+    console.log("Received upload request");
+    
+    // Attempt to parse form data
+    let formData;
+    try {
+      formData = await request.formData();
+    } catch (formError) {
+      console.error("Form data parsing error:", formError);
+      return errorResponse("Failed to parse form data", formError);
+    }
+
+    // Detailed logging of form data
+    console.log("Form Data Keys:", Array.from(formData.keys()));
+    
     const file = formData.get("file") as File | null;
     const category = formData.get("category") as string | null;
-
+    
+    // Detailed validation logging
+    console.log("File:", file);
+    console.log("Category:", category);
+    
     if (!file) {
-      return errorResponse("No file provided");
+      return errorResponse("No file provided", { filePresent: false });
     }
-
+    
     if (!category) {
-      return errorResponse("No category provided");
+      return errorResponse("No category provided", { categoryPresent: false });
     }
-
+    
     // Validate category
     if (!isValidCategory(category)) {
-      return errorResponse("Invalid category");
+      return errorResponse("Invalid category", { providedCategory: category });
     }
-
+    
     // Validate file type
-    const validTypes = [
-      "image/jpeg",
-      "image/png",
-      "image/webp",
-      "image/jpg",
-      "image/gif",
-    ];
+    const validTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg", "image/gif"];
     if (!validTypes.includes(file.type)) {
-      return errorResponse("File must be an image (JPEG, PNG, WebP, GIF)");
+      return errorResponse("File must be an image (JPEG, PNG, WebP, GIF)", { 
+        fileType: file.type,
+        validTypes 
+      });
     }
-
-    // Read file as ArrayBuffer
-    const buffer = await file.arrayBuffer();
-
+    
+    // Read file as ArrayBuffer with error handling
+    let buffer;
+    try {
+      buffer = await file.arrayBuffer();
+    } catch (bufferError) {
+      console.error("Buffer reading error:", bufferError);
+      return errorResponse("Failed to read file", bufferError);
+    }
+    
     // Convert to base64
-    const base64Content = Buffer.from(buffer).toString("base64");
-
+    const base64Content = Buffer.from(buffer).toString('base64');
+    
     // Generate unique filename with timestamp
     const timestamp = Date.now();
     const fileName = file.name;
     const fileExt = fileName.match(/\.[^/.]+$/) || [".jpg"];
     const baseFileName = fileName.replace(/\.[^/.]+$/, "");
     const uniqueFileName = `${baseFileName}-${timestamp}${fileExt[0]}`;
-
+    
     // Create the file path in the repo
     const filePath = `public/static/portfolio/${category}/${uniqueFileName}`;
-
+    
     console.log(`Uploading to GitHub: ${filePath}`);
-
+    
     // Upload file to GitHub
-    const apiUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${filePath}`;
-
-    const response = await fetch(apiUrl, {
-      method: "PUT",
-      headers: {
-        Accept: "application/vnd.github+json",
-        Authorization: `token ${GITHUB_TOKEN}`,
-        "X-GitHub-Api-Version": "2022-11-28",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        message: `Add ${uniqueFileName} to ${category}`,
-        content: base64Content,
-        branch: GITHUB_BRANCH,
-      }),
-    });
-
-    if (!response.ok) {
-      console.error(`GitHub upload error: ${response.status}`);
-      const error = await response.text();
-      return errorResponse(`GitHub API error: ${response.status} ${error}`);
+    const uploadUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${filePath}`;
+    
+    let uploadResponse;
+    try {
+      uploadResponse = await fetch(uploadUrl, {
+        method: "PUT",
+        headers: {
+          "Accept": "application/vnd.github+json",
+          "Authorization": `token ${GITHUB_TOKEN}`,
+          "X-GitHub-Api-Version": "2022-11-28",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          message: `Add ${uniqueFileName} to ${category}`,
+          content: base64Content,
+          branch: GITHUB_BRANCH
+        })
+      });
+    } catch (uploadError) {
+      console.error("GitHub upload fetch error:", uploadError);
+      return errorResponse("Failed to upload to GitHub", uploadError);
     }
-
+    
+    // Check upload response
+    if (!uploadResponse.ok) {
+      const errorText = await uploadResponse.text();
+      console.error(`GitHub upload error: ${uploadResponse.status}`, errorText);
+      return errorResponse(`GitHub API upload error: ${uploadResponse.status}`, { 
+        status: uploadResponse.status, 
+        errorText 
+      });
+    }
+    
+    // Attempt to parse upload response
+    let uploadData;
+    try {
+      uploadData = await uploadResponse.json();
+    } catch (parseError) {
+      console.error("Failed to parse upload response", parseError);
+    }
+    
+    // Extensive logging
+    console.log("Upload successful", uploadData);
+    
+    // If we got this far, the image is uploaded
+    const imageSrc = `/static/portfolio/${category}/${uniqueFileName}`;
+    
     return NextResponse.json({
       success: true,
       message: "File uploaded successfully",
-      filePath: `/static/portfolio/${category}/${uniqueFileName}`,
+      filePath: imageSrc
     });
   } catch (error) {
-    console.error("API Upload error:", error);
-    return errorResponse(
-      `Error uploading file: ${
-        error instanceof Error ? error.message : String(error)
-      }`,
-      500
-    );
+    // Catch-all error handler with maximum logging
+    console.error("Unexpected upload error:", error);
+    return errorResponse(`Unexpected error during upload: ${error instanceof Error ? error.message : String(error)}`, {
+      errorType: error instanceof Error ? error.name : 'Unknown',
+      errorStack: error instanceof Error ? error.stack : undefined
+    }, 500);
   }
 }
 
