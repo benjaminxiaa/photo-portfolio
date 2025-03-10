@@ -1,14 +1,8 @@
 // src/app/api/upload/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { uploadToR2 } from "@/lib/r2client";
-import { R2Bucket } from "@cloudflare/workers-types";
 
 export const runtime = "edge";
-
-// Define a proper interface for the environment with R2 bucket
-interface R2Environment {
-  PORTFOLIO_BUCKET: R2Bucket;
-}
 
 // Validate category
 function isValidCategory(category: string): boolean {
@@ -38,10 +32,7 @@ function errorResponse(
   );
 }
 
-export async function POST(
-  request: NextRequest,
-  { env }: { env: R2Environment }
-) {
+export async function POST(request: NextRequest) {
   try {
     console.log("Starting POST request");
 
@@ -111,7 +102,8 @@ export async function POST(
     const uniqueFileName = `${baseFileName}-${timestamp}${fileExt[0]}`;
 
     // Get R2 bucket from environment
-    const bucket = env.PORTFOLIO_BUCKET;
+    // @ts-expect-error - env is provided by Cloudflare runtime
+    const bucket = request.env?.PORTFOLIO_BUCKET;
     if (!bucket) {
       return errorResponse("R2 bucket not available", {}, 500);
     }

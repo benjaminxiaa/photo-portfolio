@@ -1,14 +1,9 @@
 // src/app/api/images/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { listImagesFromR2, deleteFromR2 } from "@/lib/r2client";
-import { R2Bucket } from "@cloudflare/workers-types";
+// import { R2Bucket } from "@cloudflare/workers-types";
 
 export const runtime = "edge";
-
-// Define a proper interface for the environment with R2 bucket
-interface R2Environment {
-  PORTFOLIO_BUCKET: R2Bucket;
-}
 
 // Validate category
 function isValidCategory(category: string): boolean {
@@ -39,10 +34,7 @@ function errorResponse(
 }
 
 // GET method to list images
-export async function GET(
-  request: NextRequest,
-  { env }: { env: R2Environment }
-) {
+export async function GET(request: NextRequest) {
   try {
     // Get the category from the query string
     const { searchParams } = new URL(request.url);
@@ -57,7 +49,8 @@ export async function GET(
     }
 
     // Get R2 bucket from environment
-    const bucket = env.PORTFOLIO_BUCKET;
+    // @ts-expect-error - env is provided by Cloudflare runtime
+    const bucket = request.env?.PORTFOLIO_BUCKET;
     if (!bucket) {
       return errorResponse("R2 bucket not available", {}, 500);
     }
@@ -81,10 +74,7 @@ export async function GET(
 }
 
 // DELETE method to remove an image
-export async function DELETE(
-  request: NextRequest,
-  { env }: { env: R2Environment }
-) {
+export async function DELETE(request: NextRequest) {
   try {
     // Parse JSON body
     const body = await request.json();
@@ -99,7 +89,8 @@ export async function DELETE(
     }
 
     // Get R2 bucket from environment
-    const bucket = env.PORTFOLIO_BUCKET;
+    // @ts-expect-error - env is provided by Cloudflare runtime
+    const bucket = request.env?.PORTFOLIO_BUCKET;
     if (!bucket) {
       return errorResponse("R2 bucket not available", {}, 500);
     }
