@@ -1,12 +1,11 @@
 // src/app/admin/page.tsx
 "use client";
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
-import { useState, useRef, FormEvent } from "react";
+import { useState, useRef, useEffect, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./admin.module.css";
-import Image from "next/image";
 
 // Define type interfaces
 interface GalleryImage {
@@ -183,7 +182,9 @@ export default function AdminPortal() {
       const data = (await response.json()) as UploadResponse;
 
       if (data.success) {
-        setMessage(`Successfully uploaded to ${category}!`);
+        setMessage(
+          `Successfully uploaded to ${category}! (Note: This is a demo in Edge runtime)`
+        );
         setMessageType("success");
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
@@ -240,7 +241,9 @@ export default function AdminPortal() {
       const data = (await response.json()) as ApiResponse;
 
       if (data.success) {
-        setMessage("Image deleted successfully");
+        setMessage(
+          "Image reference removed successfully (Note: This is a demo in Edge runtime)"
+        );
         setMessageType("success");
 
         // Refresh the image list
@@ -260,11 +263,21 @@ export default function AdminPortal() {
     }
   };
 
+  const edgeRuntimeNotice = authenticated ? (
+    <div className={styles.edgeNotice}>
+      <p>
+        ⚠️ Operating in Edge Runtime Demo Mode: Changes won't be saved
+        permanently
+      </p>
+    </div>
+  ) : null;
+
   return (
     <div className={styles.container}>
       <main className={styles.main}>
         <div className={styles.content}>
           <h1 className={styles.title}>Admin Portal</h1>
+          {edgeRuntimeNotice}
 
           {!authenticated ? (
             <form onSubmit={authenticate} className={styles.authForm}>
@@ -414,7 +427,7 @@ export default function AdminPortal() {
                       {images.map((image, index) => (
                         <div key={index} className={styles.imageCard}>
                           <div className={styles.imageWrapper}>
-                            <Image
+                            <img
                               src={image.src}
                               alt={`Gallery image ${index + 1}`}
                               className={styles.thumbnailImage}
