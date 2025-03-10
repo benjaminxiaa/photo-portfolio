@@ -4,7 +4,7 @@ import { readFile, writeFile } from "fs/promises";
 import path from "path";
 import fs from "fs";
 
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 // Type definitions
 interface DeleteRequest {
