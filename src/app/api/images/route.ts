@@ -11,7 +11,7 @@ const GITHUB_BRANCH = process.env.GITHUB_BRANCH || "main";
 
 // Error details type
 interface ErrorDetails {
-  [key: string]: string | boolean | string[] | undefined;
+  [key: string]: string | boolean | string[] | number | undefined;
 }
 
 // Validate category
@@ -31,224 +31,67 @@ function errorResponse(
     success: false, 
     message,
     details: details ? JSON.stringify(details) : undefined 
-  }, { status });
-}
-
-// GitHub API response types
-interface GitHubFileResponse {
-  name: string;
-  path: string;
-  sha: string;
-  content?: string;
-  encoding?: string;
-  type: string;
-  download_url: string | null;
-}
-
-// Get the contents of the page.tsx file
-async function getPageFileContent(category: string): Promise<{ 
-  content: string; 
-  sha: string;
-}> {
-  const pagePath = `src/app/photo/${category}/page.tsx`;
-  const pageUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${pagePath}?ref=${GITHUB_BRANCH}`;
-  
-  const pageResponse = await fetch(pageUrl, {
+  }, { 
+    status,
     headers: {
-      "Accept": "application/vnd.github+json",
-      "Authorization": `token ${GITHUB_TOKEN}`,
-      "X-GitHub-Api-Version": "2022-11-28"
+      'Content-Type': 'application/json'
     }
   });
-  
-  if (!pageResponse.ok) {
-    const errorText = await pageResponse.text();
-    throw new Error(`Failed to get page file: ${pageResponse.status} ${errorText}`);
-  }
-  
-  const pageData = await pageResponse.json() as GitHubFileResponse;
-  return {
-    content: pageData.content || '',
-    sha: pageData.sha
-  };
 }
 
-// Parse images from page.tsx content
-function extractImagesFromPageContent(content: string): Array<{
-  src: string;
-  width: number;
-  height: number;
-}> {
+// POST method to add an image
+export async function POST(request: NextRequest) {
   try {
-    // Decode base64 content
-    const decodedContent = Buffer.from(content, 'base64').toString('utf-8');
-    
-    // Extract the images array using a regex
-    const imagesMatch = decodedContent.match(/const images = \[([\s\S]*?)];/);
-    
-    if (!imagesMatch) {
-      console.error("Could not find images array in page content");
-      return [];
-    }
-    
-    // Use eval-like parsing (safely processed)
-    const imagesArrayStr = `[${imagesMatch[1]}]`;
-    const parsedImages = JSON.parse(imagesArrayStr.replace(/\n/g, '').replace(/\s+/g, ' '));
-    
-    return parsedImages;
-  } catch (error) {
-    console.error("Error parsing images:", error);
-    return [];
-  }
-}
+    console.log("Starting POST request");
+    console.log("Request content type:", request.headers.get('content-type'));
 
-// Modify page.tsx file to update image list
-async function updatePageFile(
-  category: string, 
-  action: 'add' | 'remove', 
-  imagePath: string
-): Promise<{ success: boolean; message: string }> {
-  try {
-    // Get the current page.tsx file
-    const { content: fileContent, sha: currentSha } = await getPageFileContent(category);
-    
-    let updatedContent;
-    if (action === 'add') {
-      // Prepare new image entry with default dimensions
-      const newImageEntry = `
-    {
-      src: "${imagePath}",
-      width: 1000,
-      height: 800
-    },`;
-      
-      // Insert the new image at the beginning of the array
-      updatedContent = fileContent.replace(
-        'const images = [',
-        'const images = [' + newImageEntry
-      );
-    } else {
-      // Remove image
-      // Escape special characters in the source path for regex
-      const escapedSrc = imagePath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      
-      // Create patterns to match the image object in different scenarios
-      const patternWithComma = new RegExp(`\\s*{[\\s\\S]*?src:\\s*["']${escapedSrc}["'][\\s\\S]*?}\\s*,`, 'g');
-      const patternWithoutComma = new RegExp(`\\s*{[\\s\\S]*?src:\\s*["']${escapedSrc}["'][\\s\\S]*?}\\s*(?=\\])`, 'g');
-      
-      if (patternWithComma.test(fileContent)) {
-        patternWithComma.lastIndex = 0;
-        updatedContent = fileContent.replace(patternWithComma, '');
-      } else if (patternWithoutComma.test(fileContent)) {
-        patternWithoutComma.lastIndex = 0;
-        updatedContent = fileContent.replace(patternWithoutComma, '');
-      } else {
-        console.log("Image reference not found in page file");
-        return { success: false, message: "Image not found in gallery" };
-      }
-      
-      // Clean up formatting
-      updatedContent = updatedContent
-        .replace(/,\s*,/g, ',')  // Fix double commas
-        .replace(/\[\s*,/g, '[') // Fix comma after opening bracket
-        .replace(/,\s*\]/g, ']'); // Fix comma before closing bracket
-    }
-    
-    // Commit the updated page file
-    const pagePath = `src/app/photo/${category}/page.tsx`;
-    const updateUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${pagePath}`;
-    
-    const updateResponse = await fetch(updateUrl, {
-      method: "PUT",
-      headers: {
-        "Accept": "application/vnd.github+json",
-        "Authorization": `token ${GITHUB_TOKEN}`,
-        "X-GitHub-Api-Version": "2022-11-28",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        message: `${action === 'add' ? 'Add' : 'Remove'} image from ${category} gallery`,
-        content: Buffer.from(updatedContent).toString('base64'),
-        sha: currentSha,
-        branch: GITHUB_BRANCH
-      })
-    });
-    
-    if (!updateResponse.ok) {
-      const errorText = await updateResponse.text();
-      console.error(`Failed to update page file: ${updateResponse.status}`, errorText);
-      return { 
-        success: false, 
-        message: `Failed to update page file: ${updateResponse.status} ${errorText}` 
-      };
-    }
-    
-    return { 
-      success: true, 
-      message: `Image ${action === 'add' ? 'added' : 'removed'} successfully` 
-    };
-  } catch (error) {
-    console.error("Error updating page file:", error);
-    return { 
-      success: false, 
-      message: `Error updating page file: ${error instanceof Error ? error.message : String(error)}` 
-    };
-  }
-}
-
-// GET method to fetch images
-export async function GET(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const category = searchParams.get("category");
-    
-    if (!category) {
-      return errorResponse("Category parameter is required", { 
-        categoryProvided: false 
+    // Check if this is a multipart/form-data request
+    const contentType = request.headers.get('content-type');
+    if (!contentType?.includes('multipart/form-data')) {
+      console.error("Incorrect content type", { contentType });
+      return errorResponse("Incorrect content type. Must be multipart/form-data", {
+        receivedContentType: contentType || 'undefined'
       });
     }
-    
-    if (!isValidCategory(category)) {
-      return errorResponse("Invalid category", { 
-        providedCategory: category,
-        validCategories: ['nature', 'wildlife', 'architecture', 'travel']
+
+    // Attempt to parse form data
+    let formData;
+    try {
+      formData = await request.formData();
+      console.log("Form data parsed successfully");
+    } catch (formError) {
+      console.error("Form data parsing error:", formError);
+      return errorResponse("Failed to parse form data", {
+        errorMessage: formError instanceof Error ? formError.message : String(formError),
+        errorType: formError instanceof Error ? formError.name : 'Unknown'
       });
     }
-    
-    // Get the page.tsx file for the category
-    const { content } = await getPageFileContent(category);
-    
-    // Extract images from page content
-    const images = extractImagesFromPageContent(content);
-    
-    return NextResponse.json({
-      success: true,
-      images
-    });
-  } catch (error) {
-    console.error("API Error:", error);
-    return errorResponse(`Error processing request: ${error instanceof Error ? error.message : String(error)}`, {
-      errorType: error instanceof Error ? error.name : 'Unknown',
-      errorStack: error instanceof Error ? error.stack : undefined
-    }, 500);
-  }
-}
 
-// DELETE method to remove an image
-export async function DELETE(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { src, category } = body;
+    // Log form data keys
+    const formDataKeys = Array.from(formData.keys());
+    console.log("Form Data Keys:", formDataKeys);
     
-    if (!src) {
-      return errorResponse("Image source is required", { 
-        sourceProvided: false 
+    const file = formData.get("file") as File | null;
+    const category = formData.get("category") as string | null;
+    
+    console.log("File:", file ? { 
+      name: file.name, 
+      type: file.type, 
+      size: file.size 
+    } : null);
+    console.log("Category:", category);
+    
+    if (!file) {
+      return errorResponse("No file provided", { 
+        filePresent: false,
+        formDataKeys 
       });
     }
     
     if (!category) {
-      return errorResponse("Category is required", { 
-        categoryProvided: false 
+      return errorResponse("No category provided", { 
+        categoryPresent: false,
+        formDataKeys 
       });
     }
     
@@ -260,84 +103,120 @@ export async function DELETE(request: NextRequest) {
       });
     }
     
-    // Extract filename from src
-    const filename = src.split('/').pop();
-    
-    if (!filename) {
-      return errorResponse("Invalid image source path", { 
-        providedSource: src 
+    // Validate file type
+    const validTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg", "image/gif"];
+    if (!validTypes.includes(file.type)) {
+      return errorResponse("File must be an image (JPEG, PNG, WebP, GIF)", { 
+        fileType: file.type,
+        validTypes 
       });
     }
     
-    // Construct full file path
-    const filePath = `public/static/portfolio/${category}/${filename}`;
-    
-    // First, get the current file's SHA
-    const getFileUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${filePath}?ref=${GITHUB_BRANCH}`;
-    
-    const getResponse = await fetch(getFileUrl, {
-      headers: {
-        "Accept": "application/vnd.github+json",
-        "Authorization": `token ${GITHUB_TOKEN}`,
-        "X-GitHub-Api-Version": "2022-11-28"
-      }
-    });
-    
-    if (!getResponse.ok) {
-      const errorText = await getResponse.text();
-      console.error(`Failed to get file: ${getResponse.status}`, errorText);
-      return errorResponse(`Failed to get file: ${getResponse.status}`, {
-        fileUrl: getFileUrl,
-        errorText
+    // Read file as ArrayBuffer with error handling
+    let buffer;
+    try {
+      buffer = await file.arrayBuffer();
+      console.log("File buffer read successfully", { bufferSize: buffer.byteLength });
+    } catch (bufferError) {
+      console.error("Buffer reading error:", bufferError);
+      return errorResponse("Failed to read file", {
+        errorMessage: bufferError instanceof Error ? bufferError.message : String(bufferError)
       });
     }
     
-    const fileData = await getResponse.json() as GitHubFileResponse;
+    // Convert to base64
+    const base64Content = Buffer.from(buffer).toString('base64');
+    console.log("Base64 conversion completed", { base64Length: base64Content.length });
     
-    // Delete the file
-    const deleteUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${filePath}`;
+    // Generate unique filename with timestamp
+    const timestamp = Date.now();
+    const fileName = file.name;
+    const fileExt = fileName.match(/\.[^/.]+$/) || [".jpg"];
+    const baseFileName = fileName.replace(/\.[^/.]+$/, "");
+    const uniqueFileName = `${baseFileName}-${timestamp}${fileExt[0]}`;
     
-    const deleteResponse = await fetch(deleteUrl, {
-      method: "DELETE",
-      headers: {
-        "Accept": "application/vnd.github+json",
-        "Authorization": `token ${GITHUB_TOKEN}`,
-        "X-GitHub-Api-Version": "2022-11-28",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        message: `Remove ${filename} from ${category}`,
-        sha: fileData.sha,
-        branch: GITHUB_BRANCH
-      })
-    });
+    // Create the file path in the repo
+    const filePath = `public/static/portfolio/${category}/${uniqueFileName}`;
     
-    if (!deleteResponse.ok) {
-      const errorText = await deleteResponse.text();
-      console.error(`Failed to delete file: ${deleteResponse.status}`, errorText);
-      return errorResponse(`GitHub API error: ${deleteResponse.status}`, {
-        deleteUrl,
-        errorText
+    console.log(`Uploading to GitHub: ${filePath}`);
+    
+    // Upload file to GitHub
+    const uploadUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${filePath}`;
+    
+    let uploadResponse;
+    try {
+      uploadResponse = await fetch(uploadUrl, {
+        method: "PUT",
+        headers: {
+          "Accept": "application/vnd.github+json",
+          "Authorization": `token ${GITHUB_TOKEN}`,
+          "X-GitHub-Api-Version": "2022-11-28",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          message: `Add ${uniqueFileName} to ${category}`,
+          content: base64Content,
+          branch: GITHUB_BRANCH
+        })
+      });
+      
+      console.log("GitHub upload response status:", uploadResponse.status);
+    } catch (uploadError) {
+      console.error("GitHub upload fetch error:", uploadError);
+      return errorResponse("Failed to upload to GitHub", {
+        errorMessage: uploadError instanceof Error ? uploadError.message : String(uploadError)
       });
     }
     
-    // Remove the image from the page.tsx file
-    const updateResult = await updatePageFile(category, 'remove', src);
-    
-    if (!updateResult.success) {
-      return errorResponse(updateResult.message, {
-        updateAction: 'remove',
-        category
+    // Check upload response
+    if (!uploadResponse.ok) {
+      const errorText = await uploadResponse.text();
+      console.error(`GitHub upload error: ${uploadResponse.status}`, errorText);
+      return errorResponse(`GitHub API upload error: ${uploadResponse.status}`, { 
+        status: uploadResponse.status, 
+        errorText 
       });
     }
+    
+    // Attempt to parse upload response
+    let uploadData;
+    try {
+      uploadData = await uploadResponse.json();
+      console.log("Upload response parsed successfully");
+    } catch (parseError) {
+      console.error("Failed to parse upload response", parseError);
+      
+      // If parsing fails, still return a success response
+      return NextResponse.json({
+        success: true,
+        message: "File uploaded successfully (response parsing failed)",
+        filePath: `/static/portfolio/${category}/${uniqueFileName}`
+      }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+    }
+    
+    // Extensive logging
+    console.log("Upload successful", uploadData);
+    
+    // If we got this far, the image is uploaded
+    const imageSrc = `/static/portfolio/${category}/${uniqueFileName}`;
     
     return NextResponse.json({
       success: true,
-      message: "Image deleted from gallery successfully"
+      message: "File uploaded successfully",
+      filePath: imageSrc
+    }, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
     });
   } catch (error) {
-    console.error("API Delete error:", error);
-    return errorResponse(`Error deleting image: ${error instanceof Error ? error.message : String(error)}`, {
+    // Catch-all error handler with maximum logging
+    console.error("Unexpected upload error:", error);
+    return errorResponse(`Unexpected error during upload: ${error instanceof Error ? error.message : String(error)}`, {
       errorType: error instanceof Error ? error.name : 'Unknown',
       errorStack: error instanceof Error ? error.stack : undefined
     }, 500);
