@@ -1,9 +1,4 @@
 /* src/app/admin/admin.module.css */
-:root {
-  --accent-color: #8a84e2; /* Light purple-blue accent color */
-  --accent-hover: #9d97f3; /* Slightly lighter for hover states */
-}
-
 .container {
   min-height: 100vh;
   background-color: #000000;
@@ -85,13 +80,13 @@
 .input:focus,
 .select:focus {
   outline: none;
-  border-color: var(--accent-color);
+  border-color: #8a84e2;
 }
 
 .button {
   display: inline-block;
   padding: 0.75rem 1.5rem;
-  background-color: var(--accent-color);
+  background-color: #8a84e2;
   color: #ffffff;
   border: none;
   border-radius: 0.25rem;
@@ -104,7 +99,7 @@
 }
 
 .button:hover:not(:disabled) {
-  background-color: var(--accent-hover);
+  background-color: #9d97f3;
 }
 
 .button:disabled {
@@ -133,7 +128,7 @@
 }
 
 .activeTab {
-  background-color: var(--accent-color);
+  background-color: #8a84e2;
   color: #ffffff;
 }
 
@@ -168,13 +163,13 @@
 }
 
 .activeCategoryButton {
-  background-color: var(--accent-color);
+  background-color: #8a84e2;
   color: #ffffff;
-  border-color: var(--accent-color);
+  border-color: #8a84e2;
 }
 
 .categoryButton:hover:not(:disabled) {
-  border-color: var(--accent-color);
+  border-color: #8a84e2;
   color: #ffffff;
 }
 
@@ -202,7 +197,7 @@
 
 .imageCard:hover {
   transform: translateY(-2px);
-  border-color: var(--accent-color);
+  border-color: #8a84e2;
 }
 
 .imageWrapper {
@@ -242,8 +237,8 @@
 }
 
 .deleteButton:hover {
-  background-color: var(--accent-color);
-  border-color: var(--accent-color);
+  background-color: #8a84e2;
+  border-color: #8a84e2;
 }
 
 .deleteButton:disabled {
@@ -272,7 +267,7 @@
 .success {
   background-color: rgba(138, 132, 226, 0.2);
   color: #ffffff;
-  border: 1px solid var(--accent-color);
+  border: 1px solid #8a84e2;
 }
 
 .error {
@@ -311,7 +306,7 @@
   height: 1rem;
   border: 2px solid #ffffff;
   border-radius: 50%;
-  border-top-color: var(--accent-color);
+  border-top-color: #8a84e2;
   animation: spin 1s linear infinite;
 }
 
