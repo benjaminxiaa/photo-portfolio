@@ -3,9 +3,10 @@
 
 export const runtime = "nodejs";
 
-import { useState, useRef, useEffect, FormEvent } from "react";
+import { useState, useRef, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./admin.module.css";
+import Image from "next/image";
 
 // Define type interfaces
 interface GalleryImage {
@@ -413,7 +414,7 @@ export default function AdminPortal() {
                       {images.map((image, index) => (
                         <div key={index} className={styles.imageCard}>
                           <div className={styles.imageWrapper}>
-                            <img
+                            <Image
                               src={image.src}
                               alt={`Gallery image ${index + 1}`}
                               className={styles.thumbnailImage}
