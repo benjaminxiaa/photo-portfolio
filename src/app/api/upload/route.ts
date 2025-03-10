@@ -1,8 +1,14 @@
 // src/app/api/upload/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { uploadToR2 } from "@/lib/r2client";
+import { R2Bucket } from "@cloudflare/workers-types";
 
 export const runtime = "edge";
+
+// Define a proper interface for the environment with R2 bucket
+interface R2Environment {
+  PORTFOLIO_BUCKET: R2Bucket;
+}
 
 // Validate category
 function isValidCategory(category: string): boolean {
@@ -13,7 +19,7 @@ function isValidCategory(category: string): boolean {
 // Helper for error responses with more detailed logging
 function errorResponse(
   message: string,
-  details?: Record<string, any>,
+  details?: Record<string, unknown>,
   status = 400
 ): NextResponse {
   console.error(`Error Response: ${message}`, details);
@@ -32,7 +38,10 @@ function errorResponse(
   );
 }
 
-export async function POST(request: NextRequest, { env }: { env: any }) {
+export async function POST(
+  request: NextRequest,
+  { env }: { env: R2Environment }
+) {
   try {
     console.log("Starting POST request");
 

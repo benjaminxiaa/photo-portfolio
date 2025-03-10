@@ -1,8 +1,14 @@
 // src/app/api/images/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { listImagesFromR2, deleteFromR2 } from "@/lib/r2client";
+import { R2Bucket } from "@cloudflare/workers-types";
 
 export const runtime = "edge";
+
+// Define a proper interface for the environment with R2 bucket
+interface R2Environment {
+  PORTFOLIO_BUCKET: R2Bucket;
+}
 
 // Validate category
 function isValidCategory(category: string): boolean {
@@ -13,7 +19,7 @@ function isValidCategory(category: string): boolean {
 // Helper for error responses
 function errorResponse(
   message: string,
-  details?: Record<string, any>,
+  details?: Record<string, unknown>,
   status = 400
 ): NextResponse {
   console.error(`Error Response: ${message}`, details);
@@ -33,7 +39,10 @@ function errorResponse(
 }
 
 // GET method to list images
-export async function GET(request: NextRequest, { env }: { env: any }) {
+export async function GET(
+  request: NextRequest,
+  { env }: { env: R2Environment }
+) {
   try {
     // Get the category from the query string
     const { searchParams } = new URL(request.url);
@@ -72,7 +81,10 @@ export async function GET(request: NextRequest, { env }: { env: any }) {
 }
 
 // DELETE method to remove an image
-export async function DELETE(request: NextRequest, { env }: { env: any }) {
+export async function DELETE(
+  request: NextRequest,
+  { env }: { env: R2Environment }
+) {
   try {
     // Parse JSON body
     const body = await request.json();

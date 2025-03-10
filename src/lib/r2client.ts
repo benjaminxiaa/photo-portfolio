@@ -1,10 +1,6 @@
 // src/lib/r2client.ts
 import { R2Bucket } from "@cloudflare/workers-types";
 
-interface Env {
-  PORTFOLIO_BUCKET: R2Bucket;
-}
-
 export async function uploadToR2(
   bucket: R2Bucket,
   file: ArrayBuffer,

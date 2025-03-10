@@ -4,7 +4,8 @@
 export const runtime = "edge";
 
 import { useState, useRef, FormEvent, useEffect } from "react";
-import { useRouter } from "next/navigation";
+// Remove the unused import
+// import { useRouter } from "next/navigation";
 import styles from "./admin.module.css";
 import Image from "next/image";
 
@@ -49,12 +50,13 @@ export default function AdminPortal() {
 
   // References with proper types
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const router = useRouter();
+  // Remove the unused router variable
+  // const router = useRouter();
 
   // Check for stored authentication on component mount
   useEffect(() => {
-    const storedAuth = localStorage.getItem("adminAuthenticated");
-    if (storedAuth === "true") {
+    const storedAuth = localStorage.getItem('adminAuthenticated');
+    if (storedAuth === 'true') {
       setAuthenticated(true);
     }
   }, []);
@@ -66,7 +68,7 @@ export default function AdminPortal() {
 
     if (password === adminPassword) {
       setAuthenticated(true);
-      localStorage.setItem("adminAuthenticated", "true");
+      localStorage.setItem('adminAuthenticated', 'true');
       setMessage("");
       setMessageType("");
     } else {
@@ -78,7 +80,7 @@ export default function AdminPortal() {
   // Logout handler
   const handleLogout = (): void => {
     setAuthenticated(false);
-    localStorage.removeItem("adminAuthenticated");
+    localStorage.removeItem('adminAuthenticated');
     setPassword("");
   };
 
@@ -184,7 +186,7 @@ export default function AdminPortal() {
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
         }
-
+        
         // Trigger deploy after successful upload
         triggerDeploy();
 
@@ -238,7 +240,7 @@ export default function AdminPortal() {
       if (data.success) {
         setMessage("Image deleted successfully");
         setMessageType("success");
-
+        
         // Trigger deploy after successful deletion
         triggerDeploy();
 
@@ -258,41 +260,35 @@ export default function AdminPortal() {
       setDeleting(false);
     }
   };
-
+  
   // Trigger Cloudflare Pages deployment
   const triggerDeploy = async (): Promise<void> => {
     try {
       setTriggeringDeploy(true);
       setDeployStatus("Triggering site deployment...");
-
+      
       const response = await fetch("/api/webhook/trigger-deploy", {
         method: "POST",
       });
-
+      
       const data = await response.json();
-
+      
       if (data.success) {
-        setDeployStatus(
-          "Site deployment started! Changes will be live in a few minutes."
-        );
-
+        setDeployStatus("Site deployment started! Changes will be live in a few minutes.");
+        
         // Update the message to include deployment info
-        setMessage((prev) => `${prev} Site deployment triggered successfully.`);
+        setMessage(prev => `${prev} Site deployment triggered successfully.`);
       } else {
         console.error("Deploy trigger error:", data.message);
         setDeployStatus(`Failed to trigger deployment: ${data.message}`);
       }
     } catch (error) {
       console.error("Deploy trigger error:", error);
-      setDeployStatus(
-        `Error triggering deployment: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`
-      );
+      setDeployStatus(`Error triggering deployment: ${error instanceof Error ? error.message : "Unknown error"}`);
     } finally {
       // Keep triggering deploy status visible but mark the process as done
       setTriggeringDeploy(false);
-
+      
       // Clear deploy status after 10 seconds
       setTimeout(() => {
         setDeployStatus("");
@@ -304,8 +300,7 @@ export default function AdminPortal() {
   const r2Notice = authenticated ? (
     <div className={styles.edgeNotice}>
       <p>
-        Images are stored in Cloudflare R2 and will automatically trigger a site
-        rebuild when added or removed
+        Images are stored in Cloudflare R2 and will automatically trigger a site rebuild when added or removed
       </p>
     </div>
   ) : null;
@@ -363,17 +358,16 @@ export default function AdminPortal() {
                     Manage Photos
                   </button>
                 </div>
-                <button onClick={handleLogout} className={styles.logoutButton}>
+                <button
+                  onClick={handleLogout}
+                  className={styles.logoutButton}
+                >
                   Logout
                 </button>
               </div>
 
               {deployStatus && (
-                <div
-                  className={`${styles.deployStatus} ${
-                    triggeringDeploy ? styles.deploying : styles.deployed
-                  }`}
-                >
+                <div className={`${styles.deployStatus} ${triggeringDeploy ? styles.deploying : styles.deployed}`}>
                   {deployStatus}
                 </div>
               )}
@@ -429,11 +423,7 @@ export default function AdminPortal() {
                       className={styles.button}
                       disabled={uploading || triggeringDeploy}
                     >
-                      {uploading
-                        ? "Uploading..."
-                        : triggeringDeploy
-                        ? "Deploying..."
-                        : "Upload Photo"}
+                      {uploading ? "Uploading..." : triggeringDeploy ? "Deploying..." : "Upload Photo"}
                     </button>
                   </form>
                 </div>
