@@ -3,7 +3,7 @@
 
 export const runtime = "edge";
 
-import { useState, useRef, FormEvent } from "react";
+import { useState, useRef, FormEvent, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./admin.module.css";
 import Image from "next/image";
@@ -44,22 +44,29 @@ export default function AdminPortal() {
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [deleting, setDeleting] = useState<boolean>(false);
+  const [triggeringDeploy, setTriggeringDeploy] = useState<boolean>(false);
+  const [deployStatus, setDeployStatus] = useState<string>("");
 
   // References with proper types
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
+  // Check for stored authentication on component mount
+  useEffect(() => {
+    const storedAuth = localStorage.getItem("adminAuthenticated");
+    if (storedAuth === "true") {
+      setAuthenticated(true);
+    }
+  }, []);
+
   // Authentication handler
   const authenticate = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
     const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
-    console.log(
-      "Admin password check:",
-      adminPassword ? "Password is set" : "No password set"
-    );
 
     if (password === adminPassword) {
       setAuthenticated(true);
+      localStorage.setItem("adminAuthenticated", "true");
       setMessage("");
       setMessageType("");
     } else {
@@ -68,9 +75,15 @@ export default function AdminPortal() {
     }
   };
 
+  // Logout handler
+  const handleLogout = (): void => {
+    setAuthenticated(false);
+    localStorage.removeItem("adminAuthenticated");
+    setPassword("");
+  };
+
   // Tab change handler
   const handleTabChange = (tab: TabType): void => {
-    console.log("Changing tab to:", tab);
     setActiveTab(tab);
 
     if (tab === "manage") {
@@ -80,10 +93,8 @@ export default function AdminPortal() {
     }
   };
 
-  // Category change handler - separate function with direct category parameter
+  // Category change handler
   const changeCategory = (newCategory: Category): void => {
-    console.log("Changing category from", category, "to", newCategory);
-
     // Update category state
     setCategory(newCategory);
 
@@ -95,12 +106,12 @@ export default function AdminPortal() {
     }
   };
 
-  // Image fetching function - accepts a specific category to fetch
+  // Image fetching function
   const fetchImages = async (categoryToFetch: Category): Promise<void> => {
     try {
-      console.log("Fetching images for category:", categoryToFetch);
       setLoading(true);
       setMessage("");
+      setMessageType("");
 
       const response = await fetch(`/api/images?category=${categoryToFetch}`);
 
@@ -114,26 +125,11 @@ export default function AdminPortal() {
         return;
       }
 
-      // Verify content type
-      const contentType = response.headers.get("content-type");
-      if (!contentType || !contentType.includes("application/json")) {
-        const text = await response.text();
-        console.error("Non-JSON response:", text);
-        setMessage("Error: Server did not return JSON");
-        setMessageType("error");
-        setImages([]);
-        return;
-      }
-
       // Parse response
       const data = (await response.json()) as ImagesResponse;
-      console.log("Response data:", data);
 
       if (data.success) {
         setImages(data.images || []);
-        // Clear any previous messages
-        setMessage("");
-        setMessageType("");
       } else {
         setMessage(`Error: ${data.message || "Unknown error"}`);
         setMessageType("error");
@@ -168,7 +164,7 @@ export default function AdminPortal() {
     try {
       setUploading(true);
       setMessage(`Uploading to ${category}...`);
-      setMessageType("");
+      setMessageType("info");
 
       const file = fileInputRef.current.files[0];
       const formData = new FormData();
@@ -183,14 +179,14 @@ export default function AdminPortal() {
       const data = (await response.json()) as UploadResponse;
 
       if (data.success) {
-        setMessage(
-          `Successfully uploaded to ${category}! (Note: This is a demo in Edge runtime)`
-        );
+        setMessage(`Successfully uploaded to ${category}!`);
         setMessageType("success");
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
         }
-        router.refresh();
+
+        // Trigger deploy after successful upload
+        triggerDeploy();
 
         // If we're viewing the same category we just uploaded to, refresh the images
         if (activeTab === "manage") {
@@ -224,11 +220,9 @@ export default function AdminPortal() {
     try {
       setDeleting(true);
       setMessage(`Deleting image from ${category}...`);
-      setMessageType("");
+      setMessageType("info");
 
-      console.log("Deleting image:", imageSrc, "from category:", category);
-
-      const response = await fetch("/api/delete", {
+      const response = await fetch("/api/images", {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -242,10 +236,11 @@ export default function AdminPortal() {
       const data = (await response.json()) as ApiResponse;
 
       if (data.success) {
-        setMessage(
-          "Image reference removed successfully (Note: This is a demo in Edge runtime)"
-        );
+        setMessage("Image deleted successfully");
         setMessageType("success");
+
+        // Trigger deploy after successful deletion
+        triggerDeploy();
 
         // Refresh the image list
         fetchImages(category);
@@ -264,11 +259,53 @@ export default function AdminPortal() {
     }
   };
 
-  const edgeRuntimeNotice = authenticated ? (
+  // Trigger Cloudflare Pages deployment
+  const triggerDeploy = async (): Promise<void> => {
+    try {
+      setTriggeringDeploy(true);
+      setDeployStatus("Triggering site deployment...");
+
+      const response = await fetch("/api/webhook/trigger-deploy", {
+        method: "POST",
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setDeployStatus(
+          "Site deployment started! Changes will be live in a few minutes."
+        );
+
+        // Update the message to include deployment info
+        setMessage((prev) => `${prev} Site deployment triggered successfully.`);
+      } else {
+        console.error("Deploy trigger error:", data.message);
+        setDeployStatus(`Failed to trigger deployment: ${data.message}`);
+      }
+    } catch (error) {
+      console.error("Deploy trigger error:", error);
+      setDeployStatus(
+        `Error triggering deployment: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    } finally {
+      // Keep triggering deploy status visible but mark the process as done
+      setTriggeringDeploy(false);
+
+      // Clear deploy status after 10 seconds
+      setTimeout(() => {
+        setDeployStatus("");
+      }, 10000);
+    }
+  };
+
+  // Show information about R2 integration
+  const r2Notice = authenticated ? (
     <div className={styles.edgeNotice}>
       <p>
-        ⚠️ Operating in Edge Runtime Demo Mode: Changes won&apos;t be saved
-        permanently
+        Images are stored in Cloudflare R2 and will automatically trigger a site
+        rebuild when added or removed
       </p>
     </div>
   ) : null;
@@ -278,7 +315,7 @@ export default function AdminPortal() {
       <main className={styles.main}>
         <div className={styles.content}>
           <h1 className={styles.title}>Admin Portal</h1>
-          {edgeRuntimeNotice}
+          {r2Notice}
 
           {!authenticated ? (
             <form onSubmit={authenticate} className={styles.authForm}>
@@ -307,24 +344,39 @@ export default function AdminPortal() {
             </form>
           ) : (
             <>
-              <div className={styles.tabs}>
-                <button
-                  className={`${styles.tabButton} ${
-                    activeTab === "upload" ? styles.activeTab : ""
-                  }`}
-                  onClick={() => handleTabChange("upload")}
-                >
-                  Upload Photos
-                </button>
-                <button
-                  className={`${styles.tabButton} ${
-                    activeTab === "manage" ? styles.activeTab : ""
-                  }`}
-                  onClick={() => handleTabChange("manage")}
-                >
-                  Manage Photos
+              <div className={styles.header}>
+                <div className={styles.tabs}>
+                  <button
+                    className={`${styles.tabButton} ${
+                      activeTab === "upload" ? styles.activeTab : ""
+                    }`}
+                    onClick={() => handleTabChange("upload")}
+                  >
+                    Upload Photos
+                  </button>
+                  <button
+                    className={`${styles.tabButton} ${
+                      activeTab === "manage" ? styles.activeTab : ""
+                    }`}
+                    onClick={() => handleTabChange("manage")}
+                  >
+                    Manage Photos
+                  </button>
+                </div>
+                <button onClick={handleLogout} className={styles.logoutButton}>
+                  Logout
                 </button>
               </div>
+
+              {deployStatus && (
+                <div
+                  className={`${styles.deployStatus} ${
+                    triggeringDeploy ? styles.deploying : styles.deployed
+                  }`}
+                >
+                  {deployStatus}
+                </div>
+              )}
 
               {activeTab === "upload" ? (
                 <div className={styles.uploadPanel}>
@@ -343,6 +395,7 @@ export default function AdminPortal() {
                                 ? styles.activeCategoryButton
                                 : ""
                             }`}
+                            disabled={uploading || triggeringDeploy}
                           >
                             {cat.charAt(0).toUpperCase() + cat.slice(1)}
                           </button>
@@ -374,9 +427,13 @@ export default function AdminPortal() {
                     <button
                       type="submit"
                       className={styles.button}
-                      disabled={uploading}
+                      disabled={uploading || triggeringDeploy}
                     >
-                      {uploading ? "Uploading..." : "Upload Photo"}
+                      {uploading
+                        ? "Uploading..."
+                        : triggeringDeploy
+                        ? "Deploying..."
+                        : "Upload Photo"}
                     </button>
                   </form>
                 </div>
@@ -397,7 +454,7 @@ export default function AdminPortal() {
                                 ? styles.activeCategoryButton
                                 : ""
                             }`}
-                            disabled={loading || deleting}
+                            disabled={loading || deleting || triggeringDeploy}
                           >
                             {cat.charAt(0).toUpperCase() + cat.slice(1)}
                           </button>
@@ -430,15 +487,17 @@ export default function AdminPortal() {
                           <div className={styles.imageWrapper}>
                             <Image
                               src={image.src}
+                              width={200}
+                              height={150}
                               alt={`Gallery image ${index + 1}`}
                               className={styles.thumbnailImage}
                             />
                             <button
                               onClick={() => handleDelete(image.src)}
                               className={styles.deleteButton}
-                              disabled={deleting}
+                              disabled={deleting || triggeringDeploy}
                             >
-                              Delete
+                              {deleting ? "Deleting..." : "Delete"}
                             </button>
                           </div>
                           <p className={styles.imagePath}>

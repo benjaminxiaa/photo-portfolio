@@ -1,0 +1,174 @@
+[
+  {
+    "category": "nature",
+    "processed": 18,
+    "successes": 18,
+    "failures": 0,
+    "files": [
+      {
+        "success": true,
+        "src": "/static/portfolio/nature/DSC05124.jpg",
+        "fileName": "DSC05124.jpg"
+      },
+      {
+        "success": true,
+        "src": "/static/portfolio/nature/DSC05132.jpg",
+        "fileName": "DSC05132.jpg"
+      },
+      {
+        "success": true,
+        "src": "/static/portfolio/nature/DSC05145.jpg",
+        "fileName": "DSC05145.jpg"
+      },
+      {
+        "success": true,
+        "src": "/static/portfolio/nature/DSC05282.jpg",
+        "fileName": "DSC05282.jpg"
+      },
+      {
+        "success": true,
+        "src": "/static/portfolio/nature/DSC07495.jpg",
+        "fileName": "DSC07495.jpg"
+      },
+      {
+        "success": true,
+        "src": "/static/portfolio/nature/DSC07527.jpg",
+        "fileName": "DSC07527.jpg"
+      },
+      {
+        "success": true,
+        "src": "/static/portfolio/nature/DSC07624.jpg",
+        "fileName": "DSC07624.jpg"
+      },
+      {
+        "success": true,
+        "src": "/static/portfolio/nature/DSC07788.jpg",
+        "fileName": "DSC07788.jpg"
+      },
+      {
+        "success": true,
+        "src": "/static/portfolio/nature/DSC07982.jpg",
+        "fileName": "DSC07982.jpg"
+      },
+      {
+        "success": true,
+        "src": "/static/portfolio/nature/HydrangeaBlossoms-BenjaminXia.jpg",
+        "fileName": "HydrangeaBlossoms-BenjaminXia.jpg"
+      },
+      {
+        "success": true,
+        "src": "/static/portfolio/nature/Image6.jpg",
+        "fileName": "Image6.jpg"
+      },
+      {
+        "success": true,
+        "src": "/static/portfolio/nature/PurpleSerenity-BenjaminXia.jpg",
+        "fileName": "PurpleSerenity-BenjaminXia.jpg"
+      },
+      {
+        "success": true,
+        "src": "/static/portfolio/nature/SaltPondCosmos-BenjaminXia.jpg",
+        "fileName": "SaltPondCosmos-BenjaminXia.jpg"
+      },
+      {
+        "success": true,
+        "src": "/static/portfolio/nature/SaltPortal-BenjaminXia.jpg",
+        "fileName": "SaltPortal-BenjaminXia.jpg"
+      },
+      {
+        "success": true,
+        "src": "/static/portfolio/nature/SaltStream-BenjaminXia.jpg",
+        "fileName": "SaltStream-BenjaminXia.jpg"
+      },
+      {
+        "success": true,
+        "src": "/static/portfolio/nature/Splash-BenjaminXia.jpg",
+        "fileName": "Splash-BenjaminXia.jpg"
+      },
+      {
+        "success": true,
+        "src": "/static/portfolio/nature/SymphonyOfViolet-BenjaminXia.jpg",
+        "fileName": "SymphonyOfViolet-BenjaminXia.jpg"
+      },
+      {
+        "success": true,
+        "src": "/static/portfolio/nature/b_4132739_deathvalley_mineraldeposits.jpg",
+        "fileName": "b_4132739_deathvalley_mineraldeposits.jpg"
+      }
+    ]
+  },
+  {
+    "category": "wildlife",
+    "processed": 3,
+    "successes": 3,
+    "failures": 0,
+    "files": [
+      {
+        "success": true,
+        "src": "/static/portfolio/wildlife/BreakingTheSurface-BenjaminXia.jpg",
+        "fileName": "BreakingTheSurface-BenjaminXia.jpg"
+      },
+      {
+        "success": true,
+        "src": "/static/portfolio/wildlife/CatchOfTheDay-BenjaminXia.jpg",
+        "fileName": "CatchOfTheDay-BenjaminXia.jpg"
+      },
+      {
+        "success": true,
+        "src": "/static/portfolio/wildlife/CradleInTheGreen-BenjaminXia.jpg",
+        "fileName": "CradleInTheGreen-BenjaminXia.jpg"
+      }
+    ]
+  },
+  {
+    "category": "architecture",
+    "processed": 5,
+    "successes": 5,
+    "failures": 0,
+    "files": [
+      {
+        "success": true,
+        "src": "/static/portfolio/architecture/DSC09383.jpg",
+        "fileName": "DSC09383.jpg"
+      },
+      {
+        "success": true,
+        "src": "/static/portfolio/architecture/DSC09436.jpg",
+        "fileName": "DSC09436.jpg"
+      },
+      {
+        "success": true,
+        "src": "/static/portfolio/architecture/DSC09471.jpg",
+        "fileName": "DSC09471.jpg"
+      },
+      {
+        "success": true,
+        "src": "/static/portfolio/architecture/DSC09473.jpg",
+        "fileName": "DSC09473.jpg"
+      },
+      {
+        "success": true,
+        "src": "/static/portfolio/architecture/DSC09702.jpg",
+        "fileName": "DSC09702.jpg"
+      }
+    ]
+  },
+  {
+    "category": "travel",
+    "processed": 2,
+    "successes": 2,
+    "failures": 0,
+    "files": [
+      {
+        "success": true,
+        "src": "/static/portfolio/travel/DSC05860.jpg",
+        "fileName": "DSC05860.jpg"
+      },
+      {
+        "success": true,
+        "src": "/static/portfolio/travel/DotonboriCanal-BenjaminXia.jpg",
+        "fileName": "DotonboriCanal-BenjaminXia.jpg"
+      }
+    ]
+  }
+]

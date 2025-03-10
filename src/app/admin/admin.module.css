@@ -107,6 +107,27 @@
   cursor: not-allowed;
 }
 
+.logoutContainer {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+}
+
+.logoutButton {
+  padding: 0.5rem 1rem;
+  background-color: #333333;
+  color: #ffffff;
+  border: none;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.logoutButton:hover {
+  background-color: #cc3333;
+}
+
 .tabs {
   display: flex;
   justify-content: center;
@@ -207,8 +228,8 @@
 }
 
 .thumbnailImage {
-  width: 100%;
-  height: 100%;
+  width: 100% !important;
+  height: 100% !important;
   object-fit: cover;
   transition: opacity 0.2s ease;
 }
@@ -237,8 +258,8 @@
 }
 
 .deleteButton:hover {
-  background-color: #8a84e2;
-  border-color: #8a84e2;
+  background-color: #cc3333;
+  border-color: #cc3333;
 }
 
 .deleteButton:disabled {
@@ -265,9 +286,9 @@
 }
 
 .success {
-  background-color: rgba(138, 132,n 226, 0.2);
+  background-color: rgba(52, 211, 153, 0.2);
   color: #ffffff;
-  border: 1px solid #8a84e2;
+  border: 1px solid #34d399;
 }
 
 .error {
@@ -277,9 +298,9 @@
 }
 
 .info {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(96, 165, 250, 0.2);
   color: #ffffff;
-  border: 1px solid #666666;
+  border: 1px solid #60a5fa;
 }
 
 .loadingWrapper,
@@ -338,6 +359,13 @@
 
   .title {
     font-size: 1.75rem;
+  }
+
+  .logoutContainer {
+    position: static;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
   }
 
   .categoryButtons {
