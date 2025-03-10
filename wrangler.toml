@@ -13,7 +13,7 @@ preview_bucket_name = "photo-portfolio-images-dev"
 # Note: Route patterns are specified correctly in the [[routes]] section 
 [[routes]]
 pattern = "/static/*"
-zone_name = "yourdomain.com"  # Replace with your actual domain
+zone_name = "photo-portfolio-ew8.pages.dev"  # Replace with your actual domain
 
 # Workers now require a script entry point
 [build]
