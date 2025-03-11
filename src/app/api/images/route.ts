@@ -2,19 +2,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   S3Client,
-  ListObjectsV2Command,
-  DeleteObjectCommand,
+  ListObjectsV2Command
 } from "@aws-sdk/client-s3";
 
 // Set R2 credentials
-const R2 = new S3Client({
-  region: "auto",
-  endpoint: process.env.R2_ENDPOINT || "",
-  credentials: {
-    accessKeyId: process.env.R2_ACCESS_KEY_ID || "",
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || "",
-  },
-});
+// const R2 = new S3Client({
+//   region: "auto",
+//   endpoint: process.env.R2_ENDPOINT || "",
+//   credentials: {
+//     accessKeyId: process.env.R2_ACCESS_KEY_ID || "",
+//     secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || "",
+//   },
+// });
 
 export const runtime = "edge";
 
