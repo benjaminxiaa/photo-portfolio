@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "edge";
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     // Get Cloudflare Pages webhook URL from environment variables
     const webhookUrl = process.env.CLOUDFLARE_DEPLOY_HOOK;
