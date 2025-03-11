@@ -3,42 +3,47 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "edge";
 
-export async function POST(_request: NextRequest) {
+/**
+ * This endpoint triggers a Cloudflare Pages deployment using a deploy hook.
+ *
+ * You'll need to create a deploy hook in your Cloudflare Pages project settings:
+ * 1. Go to your Cloudflare Pages project
+ * 2. Click on Settings
+ * 3. Scroll down to "Build & Deployments"
+ * 4. Look for "Deploy Hooks"
+ * 5. Create a new hook, give it a name (like "Manual Trigger")
+ * 6. Save the URL Cloudflare gives you and add it to your environment variables as CLOUDFLARE_DEPLOY_HOOK
+ */
+export async function POST() {
   try {
-    // Get Cloudflare Pages webhook URL from environment variables
-    const webhookUrl = process.env.CLOUDFLARE_DEPLOY_HOOK;
-
-    if (!webhookUrl) {
+    // Make sure the deploy hook is configured
+    if (!process.env.CLOUDFLARE_DEPLOY_HOOK) {
       return NextResponse.json(
-        { success: false, message: "Deployment webhook URL not configured" },
+        {
+          success: false,
+          message: "Deploy hook is not configured in environment variables",
+        },
         { status: 500 }
       );
     }
 
-    // Trigger the webhook to start a new deployment
-    const response = await fetch(webhookUrl, {
+    // Trigger the Cloudflare Pages deployment using the deploy hook
+    const response = await fetch(process.env.CLOUDFLARE_DEPLOY_HOOK, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      return NextResponse.json(
-        {
-          success: false,
-          message: `Failed to trigger deployment: ${errorText}`,
-        },
-        { status: response.status }
+      const text = await response.text();
+      throw new Error(
+        `Failed to trigger deployment: ${response.status} ${response.statusText} - ${text}`
       );
     }
 
-    const data = await response.json();
+    // Return success response
     return NextResponse.json({
       success: true,
-      message: "Deployment triggered successfully",
-      deployData: data,
+      message:
+        "Deployment triggered successfully. Your changes will be live in a few minutes.",
     });
   } catch (error) {
     console.error("Error triggering deployment:", error);
@@ -48,7 +53,7 @@ export async function POST(_request: NextRequest) {
         message:
           error instanceof Error
             ? error.message
-            : "Failed to trigger deployment",
+            : "Unknown error occurred while triggering deployment",
       },
       { status: 500 }
     );
