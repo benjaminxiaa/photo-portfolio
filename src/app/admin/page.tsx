@@ -1,13 +1,10 @@
 // src/app/admin/page.tsx
 "use client";
 
-export const runtime = "edge";
-
 import { useState, useRef, FormEvent, useEffect } from "react";
-// Remove the unused import
-// import { useRouter } from "next/navigation";
-import styles from "./admin.module.css";
 import Image from "next/image";
+import styles from "./admin.module.css";
+import { LuUpload, LuTrash2, LuLogOut, LuImage, LuRefreshCw, LuCheck, LuLoaderCircle } from "react-icons/lu";
 
 // Define type interfaces
 interface GalleryImage {
@@ -27,14 +24,16 @@ interface ImagesResponse extends ApiResponse {
 
 interface UploadResponse extends ApiResponse {
   filePath?: string;
+  width?: number;
+  height?: number;
 }
 
 type Category = "nature" | "wildlife" | "architecture" | "travel";
 type TabType = "upload" | "manage";
 type MessageType = "success" | "error" | "info" | "";
 
-export default function AdminPortal() {
-  // State management with proper types
+export default function AdminDashboard() {
+  // State management
   const [category, setCategory] = useState<Category>("nature");
   const [uploading, setUploading] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
@@ -47,11 +46,11 @@ export default function AdminPortal() {
   const [deleting, setDeleting] = useState<boolean>(false);
   const [triggeringDeploy, setTriggeringDeploy] = useState<boolean>(false);
   const [deployStatus, setDeployStatus] = useState<string>("");
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [selectedFileName, setSelectedFileName] = useState<string>("");
 
-  // References with proper types
+  // References
   const fileInputRef = useRef<HTMLInputElement>(null);
-  // Remove the unused router variable
-  // const router = useRouter();
 
   // Check for stored authentication on component mount
   useEffect(() => {
@@ -87,6 +86,8 @@ export default function AdminPortal() {
   // Tab change handler
   const handleTabChange = (tab: TabType): void => {
     setActiveTab(tab);
+    setMessage("");
+    setMessageType("");
 
     if (tab === "manage") {
       setImages([]);
@@ -97,10 +98,10 @@ export default function AdminPortal() {
 
   // Category change handler
   const changeCategory = (newCategory: Category): void => {
-    // Update category state
     setCategory(newCategory);
+    setMessage("");
+    setMessageType("");
 
-    // If we're in the manage tab, load the images for the new category
     if (activeTab === "manage") {
       setImages([]);
       setLoading(true);
@@ -117,7 +118,6 @@ export default function AdminPortal() {
 
       const response = await fetch(`/api/images?category=${categoryToFetch}`);
 
-      // Handle non-OK responses
       if (!response.ok) {
         const text = await response.text();
         console.error("API error:", response.status, text);
@@ -127,11 +127,14 @@ export default function AdminPortal() {
         return;
       }
 
-      // Parse response
       const data = (await response.json()) as ImagesResponse;
 
       if (data.success) {
         setImages(data.images || []);
+        if (data.images?.length === 0) {
+          setMessage(`No images found in ${categoryToFetch} category`);
+          setMessageType("info");
+        }
       } else {
         setMessage(`Error: ${data.message || "Unknown error"}`);
         setMessageType("error");
@@ -151,6 +154,15 @@ export default function AdminPortal() {
     }
   };
 
+  // File selection handler
+  const handleFileSelect = (): void => {
+    if (fileInputRef.current?.files?.length) {
+      setSelectedFileName(fileInputRef.current.files[0].name);
+    } else {
+      setSelectedFileName("");
+    }
+  };
+
   // Upload handler
   const handleUpload = async (
     event: FormEvent<HTMLFormElement>
@@ -165,6 +177,7 @@ export default function AdminPortal() {
 
     try {
       setUploading(true);
+      setUploadProgress(10);
       setMessage(`Uploading to ${category}...`);
       setMessageType("info");
 
@@ -173,18 +186,24 @@ export default function AdminPortal() {
       formData.append("file", file);
       formData.append("category", category);
 
+      setUploadProgress(30);
+      
       const response = await fetch("/api/upload", {
         method: "POST",
         body: formData,
       });
 
+      setUploadProgress(70);
+      
       const data = (await response.json()) as UploadResponse;
 
       if (data.success) {
+        setUploadProgress(90);
         setMessage(`Successfully uploaded to ${category}!`);
         setMessageType("success");
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
+          setSelectedFileName("");
         }
         
         // Trigger deploy after successful upload
@@ -206,6 +225,7 @@ export default function AdminPortal() {
       setMessageType("error");
     } finally {
       setUploading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -296,46 +316,50 @@ export default function AdminPortal() {
     }
   };
 
-  // Show information about R2 integration
-  const r2Notice = authenticated ? (
-    <div className={styles.edgeNotice}>
-      <p>
-        Images are stored in Cloudflare R2 and will automatically trigger a site rebuild when added or removed
-      </p>
-    </div>
-  ) : null;
+  // Refresh images handler
+  const handleRefresh = (): void => {
+    if (activeTab === "manage") {
+      setImages([]);
+      setLoading(true);
+      fetchImages(category);
+    }
+  };
 
   return (
     <div className={styles.container}>
       <main className={styles.main}>
         <div className={styles.content}>
-          <h1 className={styles.title}>Admin Portal</h1>
-          {r2Notice}
+          <h1 className={styles.title}>Photo Manager Dashboard</h1>
 
           {!authenticated ? (
             <form onSubmit={authenticate} className={styles.authForm}>
-              <p className={styles.description}>
-                Please enter your admin password to continue
-              </p>
-              <div className={styles.formGroup}>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className={styles.input}
-                  placeholder="Admin Password"
-                  required
-                />
-              </div>
-              <button type="submit" className={styles.button}>
-                Login
-              </button>
-
-              {messageType && (
-                <p className={`${styles.message} ${styles[messageType]}`}>
-                  {message}
+              <div className={styles.authPanel}>
+                <p className={styles.description}>
+                  Please enter your admin password to access the dashboard
                 </p>
-              )}
+                <div className={styles.formGroup}>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className={styles.input}
+                    placeholder="Admin Password"
+                    required
+                  />
+                </div>
+                <button type="submit" className={styles.button}>
+                  Login
+                </button>
+
+                {messageType && (
+                  <div className={`${styles.message} ${styles[messageType]}`}>
+                    {messageType === "error" && <LuLoaderCircle />}
+                    {messageType === "success" && <LuCheck />}
+                    {messageType === "info" && <LuLoaderCircle />}
+                    <span>{message}</span>
+                  </div>
+                )}
+              </div>
             </form>
           ) : (
             <>
@@ -347,7 +371,7 @@ export default function AdminPortal() {
                     }`}
                     onClick={() => handleTabChange("upload")}
                   >
-                    Upload Photos
+                    <LuUpload /> Upload Photos
                   </button>
                   <button
                     className={`${styles.tabButton} ${
@@ -355,73 +379,90 @@ export default function AdminPortal() {
                     }`}
                     onClick={() => handleTabChange("manage")}
                   >
-                    Manage Photos
+                    <LuImage /> Manage Photos
                   </button>
                 </div>
                 <button
                   onClick={handleLogout}
                   className={styles.logoutButton}
                 >
-                  Logout
+                  <LuLogOut /> Logout
                 </button>
               </div>
 
               {deployStatus && (
                 <div className={`${styles.deployStatus} ${triggeringDeploy ? styles.deploying : styles.deployed}`}>
-                  {deployStatus}
+                  <LuRefreshCw className={triggeringDeploy ? styles.spinning : ''} />
+                  <span>{deployStatus}</span>
                 </div>
               )}
 
+              <div className={styles.categorySelector}>
+                <p className={styles.labelHeading}>
+                  Select category:
+                </p>
+                <div className={styles.categoryButtons}>
+                  {["nature", "wildlife", "architecture", "travel"].map(
+                    (cat) => (
+                      <button
+                        key={cat}
+                        onClick={() => changeCategory(cat as Category)}
+                        className={`${styles.categoryButton} ${
+                          category === cat
+                            ? styles.activeCategoryButton
+                            : ""
+                        }`}
+                        disabled={uploading || deleting || triggeringDeploy}
+                      >
+                        {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                      </button>
+                    )
+                  )}
+                </div>
+              </div>
+
               {activeTab === "upload" ? (
                 <div className={styles.uploadPanel}>
-                  <div className={styles.categorySelector}>
-                    <p className={styles.labelHeading}>
-                      Select category to upload to:
-                    </p>
-                    <div className={styles.categoryButtons}>
-                      {["nature", "wildlife", "architecture", "travel"].map(
-                        (cat) => (
-                          <button
-                            key={cat}
-                            onClick={() => changeCategory(cat as Category)}
-                            className={`${styles.categoryButton} ${
-                              category === cat
-                                ? styles.activeCategoryButton
-                                : ""
-                            }`}
-                            disabled={uploading || triggeringDeploy}
-                          >
-                            {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                          </button>
-                        )
-                      )}
-                    </div>
-                  </div>
-
                   <p className={styles.description}>
-                    You are uploading to the <strong>{category}</strong>{" "}
-                    category.
+                    Upload new images to the <strong>{category}</strong> category
                   </p>
 
                   <form onSubmit={handleUpload} className={styles.uploadForm}>
                     <div className={styles.formGroup}>
-                      <label htmlFor="image" className={styles.label}>
-                        Select Image:
+                      <label className={styles.fileInputLabel}>
+                        <div className={styles.fileInputButton}>
+                          <LuUpload />
+                          <span>Select Image</span>
+                        </div>
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          accept="image/*"
+                          className={styles.fileInput}
+                          onChange={handleFileSelect}
+                          required
+                        />
+                        {selectedFileName && (
+                          <div className={styles.selectedFile}>
+                            <span>{selectedFileName}</span>
+                          </div>
+                        )}
                       </label>
-                      <input
-                        type="file"
-                        id="image"
-                        ref={fileInputRef}
-                        accept="image/*"
-                        className={styles.fileInput}
-                        required
-                      />
                     </div>
+
+                    {uploadProgress > 0 && (
+                      <div className={styles.progressContainer}>
+                        <div 
+                          className={styles.progressBar} 
+                          style={{ width: `${uploadProgress}%` }}
+                        ></div>
+                      </div>
+                    )}
 
                     <button
                       type="submit"
                       className={styles.button}
-                      disabled={uploading || triggeringDeploy}
+                      disabled={uploading || triggeringDeploy || !selectedFileName}
                     >
                       {uploading ? "Uploading..." : triggeringDeploy ? "Deploying..." : "Upload Photo"}
                     </button>
@@ -429,45 +470,31 @@ export default function AdminPortal() {
                 </div>
               ) : (
                 <div className={styles.managePanel}>
-                  <div className={styles.categorySelector}>
-                    <p className={styles.labelHeading}>
-                      Select category to manage:
+                  <div className={styles.managePanelHeader}>
+                    <p className={styles.description}>
+                      Managing <strong>{category}</strong> images
                     </p>
-                    <div className={styles.categoryButtons}>
-                      {["nature", "wildlife", "architecture", "travel"].map(
-                        (cat) => (
-                          <button
-                            key={cat}
-                            onClick={() => changeCategory(cat as Category)}
-                            className={`${styles.categoryButton} ${
-                              category === cat
-                                ? styles.activeCategoryButton
-                                : ""
-                            }`}
-                            disabled={loading || deleting || triggeringDeploy}
-                          >
-                            {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                          </button>
-                        )
-                      )}
-                    </div>
+                    <button 
+                      className={styles.refreshButton}
+                      onClick={handleRefresh}
+                      disabled={loading}
+                    >
+                      <LuRefreshCw className={loading ? styles.spinning : ''} />
+                      <span>Refresh</span>
+                    </button>
                   </div>
-
-                  <p className={styles.description}>
-                    Managing <strong>{category}</strong> category. Click the
-                    delete button to remove an image.
-                  </p>
 
                   {loading ? (
                     <div className={styles.loadingWrapper}>
                       <p className={styles.loadingMessage}>
-                        Loading images from {category} category...
+                        <LuRefreshCw className={styles.spinning} />
+                        <span>Loading images from {category} category...</span>
                       </p>
                     </div>
                   ) : images.length === 0 ? (
                     <div className={styles.emptyWrapper}>
                       <p className={styles.emptyMessage}>
-                        No images found in {category} category.
+                        No images found in {category} category
                       </p>
                     </div>
                   ) : (
@@ -479,15 +506,17 @@ export default function AdminPortal() {
                               src={image.src}
                               width={200}
                               height={150}
-                              alt={`Gallery image ${index + 1}`}
+                              alt={`${category} image ${index + 1}`}
                               className={styles.thumbnailImage}
                             />
                             <button
                               onClick={() => handleDelete(image.src)}
                               className={styles.deleteButton}
                               disabled={deleting || triggeringDeploy}
+                              aria-label="Delete image"
+                              title="Delete image"
                             >
-                              {deleting ? "Deleting..." : "Delete"}
+                              <LuTrash2 />
                             </button>
                           </div>
                           <p className={styles.imagePath}>
@@ -501,14 +530,13 @@ export default function AdminPortal() {
               )}
 
               {messageType && (
-                <p className={`${styles.message} ${styles[messageType]}`}>
-                  {message}
-                </p>
+                <div className={`${styles.message} ${styles[messageType]}`}>
+                  {messageType === "error" && <LuLoaderCircle />}
+                  {messageType === "success" && <LuCheck />}
+                  {messageType === "info" && <LuLoaderCircle />}
+                  <span>{message}</span>
+                </div>
               )}
-
-              <p className={styles.copyright}>
-                Admin Portal v1.0 - © {new Date().getFullYear()}
-              </p>
             </>
           )}
         </div>
