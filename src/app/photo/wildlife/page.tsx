@@ -1,9 +1,10 @@
 // src/app/photo/wildlife/page.tsx
-import { cache } from 'react';
+import { cache } from "react";
 import styles from "../gallery.module.css";
 import Nav from "../../components/nav";
 import { MasonryPhotoAlbum } from "react-photo-album";
 import Copyright from "@/app/components/copyright";
+import Social from "@/app/components/social";
 
 interface GalleryImage {
   src: string;
@@ -14,13 +15,15 @@ interface GalleryImage {
 // Cached fetch function to avoid duplicate requests
 const getImages = cache(async (category: string): Promise<GalleryImage[]> => {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
     const response = await fetch(`${apiUrl}/api/images?category=${category}`, {
-      next: { revalidate: 60 } // Revalidate every minute
+      next: { revalidate: 60 }, // Revalidate every minute
     });
 
     if (!response.ok) {
-      console.error(`Failed to fetch ${category} images: ${response.statusText}`);
+      console.error(
+        `Failed to fetch ${category} images: ${response.statusText}`
+      );
       return [];
     }
 
@@ -34,8 +37,8 @@ const getImages = cache(async (category: string): Promise<GalleryImage[]> => {
 
 export default async function WildlifePage() {
   // Attempt to fetch images from R2 storage via API
-  const dynamicImages = await getImages('wildlife');
-  
+  const dynamicImages = await getImages("wildlife");
+
   // Fallback static images in case dynamic loading fails
   const fallbackImages = [
     {
@@ -54,7 +57,7 @@ export default async function WildlifePage() {
       height: 4000,
     },
   ];
-  
+
   // Use dynamic images if available, otherwise fall back to static ones
   const images = dynamicImages.length > 0 ? dynamicImages : fallbackImages;
 
@@ -63,11 +66,22 @@ export default async function WildlifePage() {
       {/* Navigation */}
       <Nav />
 
+      {/* Social Links Sidebar */}
+      <Social />
+
       {/* Main Content */}
       <main className={styles.main}>
         <div className={styles.content}>
-          <h1 className={styles.title}>Wildlife</h1>
-          <MasonryPhotoAlbum photos={images} columns={3} spacing={50} />
+          <h1 className={styles.title}>Wildlife Photography</h1>
+          <MasonryPhotoAlbum
+            photos={images}
+            columns={(width) => {
+              if (width < 500) return 1;
+              if (width < 800) return 2;
+              return 3;
+            }}
+            spacing={50}
+          />
         </div>
       </main>
 
