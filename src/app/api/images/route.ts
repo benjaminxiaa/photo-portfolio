@@ -18,110 +18,68 @@ const R2 = new S3Client({
 
 export const runtime = "edge";
 
-// Helper function to get images by category
-async function getImagesByCategory(category: string) {
-  const validCategories = ["wildlife", "nature", "architecture", "travel"];
-  if (!validCategories.includes(category)) {
-    throw new Error("Invalid category");
-  }
-
-  const prefix = `static/portfolio/${category}/`;
-
-  const command = new ListObjectsV2Command({
-    Bucket: process.env.R2_BUCKET_NAME,
-    Prefix: prefix,
-  });
-
-  const response = await R2.send(command);
-
-  if (!response.Contents) {
-    return [];
-  }
-
-  // Get image metadata from R2 and construct image objects
-  const baseUrl = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || "";
-
-  // Return all images with dimensions (we'll compute height and width on frontend)
-  return response.Contents.map((item) => {
-    if (!item.Key) return null;
-
-    return {
-      src: `${baseUrl}/${item.Key}`,
-      width: 1000, // Default width, will be updated on frontend with real dimensions
-      height: 800, // Default height, will be updated on frontend with real dimensions
-    };
-  }).filter(Boolean);
-}
-
+// In src/app/api/images/route.ts
 export async function GET(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const category = searchParams.get("category");
+  // Get the category from query parameters
+  const { searchParams } = new URL(request.url);
+  const category = searchParams.get("category");
 
-    if (!category) {
-      return NextResponse.json(
-        { success: false, message: "Category is required" },
-        { status: 400 }
-      );
+  console.log(`API: Fetching images for category: ${category}`);
+
+  if (!category) {
+    return NextResponse.json(
+      { success: false, message: "Category parameter is required" },
+      { status: 400 }
+    );
+  }
+
+  try {
+    // Log R2 configuration (don't log the full secret key!)
+    console.log(`API: Using R2 endpoint: ${process.env.R2_ENDPOINT}`);
+    console.log(`API: Using R2 bucket: ${process.env.R2_BUCKET_NAME}`);
+    console.log(`API: Using prefix: portfolio/${category}/`);
+
+    // Create S3 client configured for Cloudflare R2
+    const s3 = new S3Client({
+      region: "auto",
+      endpoint: process.env.R2_ENDPOINT,
+      credentials: {
+        accessKeyId: process.env.R2_ACCESS_KEY_ID || "",
+        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || "",
+      },
+    });
+
+    // List objects in the specified category folder
+    const listCommand = new ListObjectsV2Command({
+      Bucket: process.env.R2_BUCKET_NAME,
+      Prefix: `portfolio/${category}/`,
+    });
+
+    console.log(`API: Sending list command to R2`);
+    const listResult = await s3.send(listCommand);
+
+    console.log(
+      `API: Got result from R2, contents: ${JSON.stringify(
+        listResult.Contents
+      )}`
+    );
+
+    if (!listResult.Contents || listResult.Contents.length === 0) {
+      console.log(`API: No images found for category ${category}`);
+      return NextResponse.json({ success: true, images: [] });
     }
 
-    const images = await getImagesByCategory(category);
-    return NextResponse.json({ success: true, images });
+    // Log number of objects found
+    console.log(`API: Found ${listResult.Contents.length} objects in R2`);
+
+    // Rest of your code...
   } catch (error) {
-    console.error("Error fetching images:", error);
+    console.error("API Error fetching images:", error);
     return NextResponse.json(
       {
         success: false,
         message:
-          error instanceof Error ? error.message : "Failed to fetch images",
-      },
-      { status: 500 }
-    );
-  }
-}
-
-export async function DELETE(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { src, category } = body;
-
-    if (!src || !category) {
-      return NextResponse.json(
-        { success: false, message: "Source URL and category are required" },
-        { status: 400 }
-      );
-    }
-
-    // Extract the path from the full URL
-    const baseUrl = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || "";
-    if (!src.startsWith(baseUrl)) {
-      return NextResponse.json(
-        { success: false, message: "Invalid source URL" },
-        { status: 400 }
-      );
-    }
-
-    // Get the R2 key from the full URL
-    const key = src.replace(baseUrl + "/", "");
-
-    // Delete from R2
-    await R2.send(
-      new DeleteObjectCommand({
-        Bucket: process.env.R2_BUCKET_NAME,
-        Key: key,
-      })
-    );
-
-    return NextResponse.json({
-      success: true,
-      message: "Image deleted successfully",
-    });
-  } catch (error) {
-    console.error("Delete error:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        message: error instanceof Error ? error.message : "Delete failed",
+          error instanceof Error ? error.message : "Unknown error occurred",
       },
       { status: 500 }
     );
