@@ -23,16 +23,16 @@ export default function Nav() {
           </span>
           <ul className={styles.dropdown}>
             <li>
-              <Link href="/photo/wildlife">Wildlife</Link>
+              <Link href="/photos/wildlife">Wildlife</Link>
             </li>
             <li>
-              <Link href="/photo/architecture">Architecture</Link>
+              <Link href="/photos/architecture">Architecture</Link>
             </li>
             <li>
-              <Link href="/photo/nature">Nature</Link>
+              <Link href="/photos/nature">Nature</Link>
             </li>
             <li>
-              <Link href="/photo/travel">Travel</Link>
+              <Link href="/photos/travel">Travel</Link>
             </li>
           </ul>
         </li>
